@@ -1,0 +1,54 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.158.0/containers/docker-existing-docker-compose
+// If you want to run as a non-root user in the container, see .devcontainer/docker-compose.yml.
+{
+  "name": "dev-container",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "benzaiten",
+  "workspaceFolder": "/workspace",
+  "extensions": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "kddejong.vscode-cfn-lint",
+    "padjon.save-and-run-ext",
+    "christian-kohler.path-intellisense",
+    "vscodevim.vim"
+  ],
+  "settings": {
+    "eslint.workingDirectories": [{ "mode": "auto" }],
+    "python.condaPath": "/opt/conda/bin/conda",
+    "python.defaultInterpreterPath": "/opt/conda/bin/python",
+    "python.pythonPath": "/opt/conda/bin/python",
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true,
+    "python.linting.flake8Path": "/opt/conda/bin/flake8",
+    "python.linting.flake8Args": [
+      "--max-line-length=88",
+      "--ignore=E203,E722,W503,W504"
+    ],
+    "python.formatting.provider": "black",
+    "python.formatting.blackPath": "/opt/conda/bin/black",
+    "python.formatting.blackArgs": ["--line-length", "88"],
+    "python.sortImports.path": "/opt/conda/bin/isort",
+    "python.testing.cwd": "${workspaceFolder}",
+    "[python]": {
+      "editor.tabSize": 4,
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+      }
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.formatOnPaste": false,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    "vim.neovimUseConfigFile": true,
+    "terminal.integrated.inheritEnv": false
+  },
+  "shutdownAction": "stopCompose"
+}
