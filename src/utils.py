@@ -39,7 +39,7 @@ def make_note_and_chord_seq_from_musicxml(score, total_measures, n_beats, beat_r
                     chord_offset = measure_offset + note.offset
                     for i in range(
                         int(chord_offset * beat_reso),
-                        int((measure_offset * n_beats) * beat_reso + 1),
+                        int((measure_offset + n_beats) * beat_reso + 1),
                     ):
                         chord_seq[i] = note
 
@@ -63,7 +63,7 @@ def note_seq_to_onehot(note_seq, notenum_thru, notenum_from):
     matrix = np.zeros((n_note_seq, n_note_width))
     for i in range(n_note_seq):
         if note_seq[i] is not None:
-            matrix[i, note_seq[i].patch.midi - notenum_from] = 1
+            matrix[i, note_seq[i].pitch.midi - notenum_from] = 1
     return matrix
 
 
@@ -76,7 +76,7 @@ def add_rest_nodes(onehot_seq):
 def extract_seq(index, onehot_seq, chroma_seq, unit_measures, width):
     onehot_vectors = onehot_seq[index * width : (index + unit_measures) * width, :]
     chord_vectors = chroma_seq[index * width : (index + unit_measures) * width, :]
-    return onehot_seq, chord_vectors
+    return onehot_vectors, chord_vectors
 
 
 def chord_seq_to_chroma(chord_seq):
@@ -84,7 +84,7 @@ def chord_seq_to_chroma(chord_seq):
     for i, chord in enumerate(chord_seq):
         if chord is not None:
             for note in chord._notes:
-                matrix[i, note.patch.midi % 12] = 1
+                matrix[i, note.pitch.midi % 12] = 1
     return matrix
 
 
@@ -201,7 +201,11 @@ def make_midi(cfg: DictConfig, notenums, durations):
 
 
 def calc_xy(onehot_vectors, chord_vectors):
-    data = np.concatenate([onehot_vectors, chord_vectors], axis=1)
+
+    data = np.concatenate(
+        [onehot_vectors, chord_vectors],
+        axis=1,
+    )
     label = np.argmax(onehot_vectors, axis=1)
     return data, label
 

@@ -12,6 +12,7 @@
     "ms-python.vscode-pylance",
     "ms-python.black-formatter",
     "freakypie.code-python-isort",
+    "donjayamanne.python-extension-pack",
     "njpwerner.autodocstring",
     "henriiik.docker-linter",
     "ms-azuretools.vscode-docker",

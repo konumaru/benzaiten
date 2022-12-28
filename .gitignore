@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 # XML files
-data/omnibook_xml/
+data/*
+!data/.gitkeep

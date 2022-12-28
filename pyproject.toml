@@ -16,8 +16,8 @@ scipy = "^1.9.3"
 matplotlib = "^3.6.2"
 mido = "^1.2.10"
 music21 = "^8.1.0"
-progressbar = "^2.5"
 rich = "^12.6.0"
+jupyterlab = "^3.5.2"
 
 
 [tool.poetry.group.dev.dependencies]
