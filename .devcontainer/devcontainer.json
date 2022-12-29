@@ -30,6 +30,8 @@
     "python.condaPath": "/opt/conda/bin/conda",
     "python.defaultInterpreterPath": "/usr/local/bin/python",
     "python.pythonPath": "/usr/local/bin/python",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.languageServer": "Pylance",
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
@@ -41,7 +43,7 @@
     "python.formatting.provider": "black",
     "python.formatting.blackPath": "/usr/local/bin/black",
     "python.formatting.blackArgs": ["--line-length", "88"],
-    "python.sortImports.path": "/usr/local/bin/isort",
+    "isort.path": ["/usr/local/bin/isort"],
     "python.testing.cwd": "${workspaceFolder}",
     "[python]": {
       "editor.tabSize": 4,
