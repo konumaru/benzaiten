@@ -1,5 +1,6 @@
 import csv
 import os
+from typing import List
 
 import mido
 import music21
@@ -88,8 +89,8 @@ def chord_seq_to_chroma(chord_seq):
     return matrix
 
 
-def read_chord_file(csv_file, melody_length, n_beats):
-    chord_seq = [None] * (melody_length * n_beats)
+def read_chord_file(csv_file, melody_length, n_beats) -> List:
+    chord_seq = [None] * int(melody_length * n_beats)
 
     with open(csv_file, encoding="utf-8") as file_handler:
         reader = csv.reader(file_handler)
@@ -109,17 +110,16 @@ def read_chord_file(csv_file, melody_length, n_beats):
     return chord_seq
 
 
-def make_chord_seq(chord_prog, division, n_beats, beat_reso):
+def make_chord_seq(chord_prog: List, division, n_beats, beat_reso):
     time_length = int(n_beats * beat_reso / division)
-    seq = [] * (time_length * int(chord_prog))
-
+    seq = []
     for i, chord in enumerate(chord_prog):
         for _t in range(time_length):
             idx = int(i * time_length) + _t
             if isinstance(chord, music21.harmony.ChordSymbol):
-                seq[idx] = chord
+                seq.append(chord)
             else:
-                seq[idx] = music21.harmony.ChordSymbol(chord)
+                seq.append(music21.harmony.ChordSymbol(chord))
     return seq
 
 
@@ -138,7 +138,7 @@ def calc_notenums_from_pianoroll(pianoroll, notenum_from):
 
 def calc_durations(notenums):
     note_length = len(notenums)
-    duration = [] * note_length
+    duration = [1] * note_length
     for i in range(note_length):
         k = 1
         while i + k < note_length:
@@ -201,7 +201,6 @@ def make_midi(cfg: DictConfig, notenums, durations):
 
 
 def calc_xy(onehot_vectors, chord_vectors):
-
     data = np.concatenate(
         [onehot_vectors, chord_vectors],
         axis=1,
