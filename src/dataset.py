@@ -36,3 +36,21 @@ class BenzaitenDataset(Dataset):
             _type_: _description_
         """
         return self.data_all[index], self.label_all[index]
+
+
+def _worker_init_fn(worker_id):
+    random.seed(worker_id)
+
+
+def get_dataloader(cfg):
+    dataset = BenzaitenDataset(cfg)
+    dataloader = DataLoader(
+        dataset,
+        batch_size=cfg.training.n_batch,
+        shuffle=True,
+        drop_last=True,
+        num_workers=2,
+        pin_memory=True,
+        worker_init_fn=_worker_init_fn,
+    )
+    return dataloader
