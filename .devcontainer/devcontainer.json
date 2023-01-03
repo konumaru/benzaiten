@@ -24,7 +24,7 @@
     "padjon.save-and-run-ext",
     "christian-kohler.path-intellisense",
     "vscodevim.vim",
-    "wayou.vscode-todo-highlight",
+    "Gruntfuggly.todo-tree",
     "usernamehw.errorlens"
   ],
   "settings": {

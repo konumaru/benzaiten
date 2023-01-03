@@ -3,6 +3,7 @@ import os
 import subprocess
 from typing import List, Tuple
 
+import hydra
 import joblib
 import music21
 import numpy as np
@@ -10,6 +11,7 @@ from hydra import compose, initialize
 from omegaconf import DictConfig
 from rich.progress import track
 
+from config import Config
 from utils import (
     add_rest_nodes,
     chord_seq_to_chroma,
@@ -19,7 +21,7 @@ from utils import (
 )
 
 
-def get_music_xml(cfg: DictConfig) -> None:
+def get_music_xml(cfg: Config) -> None:
     subprocess.run("echo -n Download Omnibook MusicXML ...", text=True, shell=True)
 
     xml_url = cfg.preprocess.xml_url
@@ -47,7 +49,7 @@ def get_music_xml(cfg: DictConfig) -> None:
     print(" done.")
 
 
-def extract_features(cfg: DictConfig) -> Tuple[np.ndarray, np.ndarray]:
+def extract_features(cfg: Config) -> Tuple[np.ndarray, np.ndarray]:
     data_all: List[float] = []
     label_all: List[float] = []
 
@@ -84,7 +86,7 @@ def extract_features(cfg: DictConfig) -> Tuple[np.ndarray, np.ndarray]:
     return np.array(data_all), np.array(label_all)
 
 
-def save_features(cfg: DictConfig, data_all: np.ndarray, label_all: np.ndarray) -> None:
+def save_features(cfg: Config, data_all: np.ndarray, label_all: np.ndarray) -> None:
     feat_dir = os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.feat_dir)
     os.makedirs(feat_dir, exist_ok=True)
 
@@ -94,7 +96,7 @@ def save_features(cfg: DictConfig, data_all: np.ndarray, label_all: np.ndarray) 
     print("Save extracted features to " + feat_file)
 
 
-def get_backing_chord(cfg: DictConfig) -> None:
+def get_backing_chord(cfg: Config) -> None:
     """Download backing file (midi) and chord file (csv)."""
     g_drive_url = '"https://drive.google.com/uc?export=download&id="'
     adlib_dir = os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.adlib_dir)
@@ -116,7 +118,8 @@ def get_backing_chord(cfg: DictConfig) -> None:
     print(" done.")
 
 
-def main(cfg: DictConfig) -> None:
+@hydra.main(version_base=None, config_name="config")
+def main(cfg: Config) -> None:
     """Perform preprocess."""
     # Download Omnibook MusicXML
     get_music_xml(cfg)
@@ -132,7 +135,4 @@ def main(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    with initialize(version_base=None, config_path="."):
-        config = compose(config_name="config")
-
-    main(config)
+    main()

@@ -1,15 +1,15 @@
 import os
 
+import hydra
 import matplotlib.pyplot as plt
 import midi2audio
 import mido
 import numpy as np
 import torch
 import torch.nn as nn
-from hydra import compose, initialize
-from omegaconf import DictConfig
 from scipy.special import softmax
 
+from config import Config
 from model import Seq2SeqMelodyComposer
 from utils import (
     calc_durations,
@@ -26,7 +26,7 @@ from utils import (
 
 @torch.no_grad()
 def generate_melody(
-    cfg: DictConfig, model: nn.Module, chroma_vec: np.ndarray, device: torch.device
+    cfg: Config, model: nn.Module, chroma_vec: np.ndarray, device: torch.device
 ) -> np.ndarray:
     """Perform a inference step to generate melody (piano-roll) data.
     Args:
@@ -62,7 +62,7 @@ def generate_melody(
 
 
 def generate_midi(
-    cfg: DictConfig, model: nn.Module, chord_file: str, device: torch.device
+    cfg: Config, model: nn.Module, chord_file: str, device: torch.device
 ) -> mido.MidiFile:
     """Synthesize melody with a trained model.
     Args:
@@ -87,7 +87,8 @@ def generate_midi(
     return midi
 
 
-def main(cfg: DictConfig) -> None:
+@hydra.main(version_base=None, config_name="config")
+def main(cfg: Config) -> None:
     """Perform ad-lib melody synthesis."""
 
     # setup network and load checkpoint
@@ -117,7 +118,4 @@ def main(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    with initialize(version_base=None, config_path="."):
-        config = compose(config_name="config")
-
-    main(config)
+    main()

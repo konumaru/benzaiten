@@ -6,11 +6,13 @@ import joblib
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader, Dataset
 
+from config import Config
+
 
 class BenzaitenDataset(Dataset):
     """Build Dataset for training."""
 
-    def __init__(self, cfg: DictConfig) -> None:
+    def __init__(self, cfg: Config) -> None:
         """Initialize class."""
         super().__init__()
 
@@ -43,7 +45,7 @@ def _worker_init_fn(worker_id: int) -> None:
     random.seed(worker_id)
 
 
-def get_dataloader(cfg: DictConfig) -> DataLoader:
+def get_dataloader(cfg: Config) -> DataLoader:
     dataset = BenzaitenDataset(cfg)
     dataloader = DataLoader(
         dataset,

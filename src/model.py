@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 from omegaconf import DictConfig
 
+from config import Config
+
 
 class Encoder(nn.Module):
     def __init__(
@@ -97,7 +99,7 @@ class VariantionalAutoEncoder(nn.Module):
 
 
 class Seq2SeqMelodyComposer(nn.Module):
-    def __init__(self, config: DictConfig, device: torch.device) -> None:
+    def __init__(self, config: Config, device: torch.device) -> None:
         super().__init__()
 
         self.encoder = Encoder(
@@ -130,6 +132,6 @@ class Seq2SeqMelodyComposer(nn.Module):
         return prediction
 
 
-def get_model(config: DictConfig, device: torch.device) -> Seq2SeqMelodyComposer:
+def get_model(config: Config, device: torch.device) -> Seq2SeqMelodyComposer:
     model = Seq2SeqMelodyComposer(config, device)
     return model

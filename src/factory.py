@@ -6,23 +6,23 @@ from torch import nn, optim
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 
+from config import Config
 
-def get_optimizer(cfg: DictConfig, model: nn.Module) -> Optimizer:
+
+def get_optimizer(cfg: Config, model: nn.Module) -> Optimizer:
     """Instantiate optimizer."""
-    optimizer_class = getattr(optim, cfg.training.optim.optimizer.name)
+    optimizer_class = getattr(optim, cfg.training.optimizer.name)
     optimizer: Optimizer = optimizer_class(
-        model.parameters(), **cfg.training.optim.optimizer.params
+        model.parameters(), **cfg.training.optimizer.params
     )
     return optimizer
 
 
-def get_lr_scheduler(cfg: DictConfig, optimizer: Optimizer) -> _LRScheduler:
+def get_lr_scheduler(cfg: Config, optimizer: Optimizer) -> _LRScheduler:
     """Instantiate scheduler."""
-    lr_scheduler_class = getattr(
-        optim.lr_scheduler, cfg.training.optim.lr_scheduler.name
-    )
+    lr_scheduler_class = getattr(optim.lr_scheduler, cfg.training.lr_scheduler.name)
     lr_scheduler: _LRScheduler = lr_scheduler_class(
-        optimizer, **cfg.training.optim.lr_scheduler.params
+        optimizer, **cfg.training.lr_scheduler.params  # type: ignore
     )
     return lr_scheduler
 
@@ -30,7 +30,7 @@ def get_lr_scheduler(cfg: DictConfig, optimizer: Optimizer) -> _LRScheduler:
 class CustomLoss(nn.Module):
     """Custom loss."""
 
-    def __init__(self, cfg: DictConfig, model: nn.Module) -> None:
+    def __init__(self, cfg: Config, model: nn.Module) -> None:
         """Initialize class."""
         super().__init__()
         self.cfg = cfg
@@ -67,7 +67,7 @@ class CustomLoss(nn.Module):
         return output
 
 
-def get_loss(cfg: DictConfig, model: nn.Module) -> CustomLoss:
+def get_loss(cfg: Config, model: nn.Module) -> CustomLoss:
     """Instantiate customized loss."""
     custom_loss = CustomLoss(cfg, model)
     return custom_loss

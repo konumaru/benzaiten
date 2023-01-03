@@ -5,7 +5,8 @@ from typing import Any, List, Tuple
 import mido
 import music21
 import numpy as np
-from omegaconf import DictConfig
+
+from config import Config
 
 
 def make_note_and_chord_seq_from_musicxml(
@@ -165,9 +166,7 @@ def calc_durations(notenums: List[Any]) -> Tuple[List[Any], List[int]]:
     return notenums, duration
 
 
-def make_midi(
-    cfg: DictConfig, notenums: List[Any], durations: List[int]
-) -> mido.MidiFile:
+def make_midi(cfg: Config, notenums: List[Any], durations: List[int]) -> mido.MidiFile:
     beat_reso = cfg.feature.beat_reso
     n_beats = cfg.feature.n_beats
     transpose = cfg.feature.transpose
@@ -228,7 +227,7 @@ def calc_xy(
 
 
 def divide_seq(
-    cfg: DictConfig,
+    cfg: Config,
     onehot_seq: np.ndarray,
     chroma_seq: np.ndarray,
     data_all: List,
