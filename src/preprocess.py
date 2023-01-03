@@ -1,11 +1,13 @@
 import glob
 import os
 import subprocess
+from typing import List, Tuple
 
 import joblib
 import music21
 import numpy as np
 from hydra import compose, initialize
+from omegaconf import DictConfig
 from rich.progress import track
 
 from utils import (
@@ -17,7 +19,7 @@ from utils import (
 )
 
 
-def get_music_xml(cfg):
+def get_music_xml(cfg: DictConfig) -> None:
     subprocess.run("echo -n Download Omnibook MusicXML ...", text=True, shell=True)
 
     xml_url = cfg.preprocess.xml_url
@@ -45,9 +47,9 @@ def get_music_xml(cfg):
     print(" done.")
 
 
-def extract_features(cfg):
-    data_all = []
-    label_all = []
+def extract_features(cfg: DictConfig) -> Tuple[np.ndarray, np.ndarray]:
+    data_all: List[float] = []
+    label_all: List[float] = []
 
     xml_dir = os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.xml_dir)
     os.makedirs(xml_dir, exist_ok=True)
@@ -57,7 +59,7 @@ def extract_features(cfg):
     ):
         score = music21.converter.parse(xml_file)
         key = score.analyze("key")
-        if key.mode == cfg.feature.key_mode:
+        if key.mode == cfg.feature.key_mode:  # type: ignore
             inter = music21.interval.Interval(
                 key.tonic,  # type: ignore
                 music21.pitch.Pitch(cfg.feature.key_root),
@@ -70,20 +72,19 @@ def extract_features(cfg):
                 cfg.feature.beat_reso,
             )
 
-            onehot_seq = add_rest_nodes(
-                note_seq_to_onehot(
-                    note_seq,
-                    cfg.feature.notenum_thru,
-                    cfg.feature.notenum_from,
-                )
+            onehot_seq = note_seq_to_onehot(
+                note_seq,
+                cfg.feature.notenum_thru,
+                cfg.feature.notenum_from,
             )
+            onehot_seq = add_rest_nodes(onehot_seq)
             chroma_seq = chord_seq_to_chroma(chord_seq)
             divide_seq(cfg, onehot_seq, chroma_seq, data_all, label_all)
 
     return np.array(data_all), np.array(label_all)
 
 
-def save_features(cfg, data_all, label_all):
+def save_features(cfg: DictConfig, data_all: np.ndarray, label_all: np.ndarray) -> None:
     feat_dir = os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.feat_dir)
     os.makedirs(feat_dir, exist_ok=True)
 
@@ -93,7 +94,7 @@ def save_features(cfg, data_all, label_all):
     print("Save extracted features to " + feat_file)
 
 
-def get_backing_chord(cfg):
+def get_backing_chord(cfg: DictConfig) -> None:
     """Download backing file (midi) and chord file (csv)."""
     g_drive_url = '"https://drive.google.com/uc?export=download&id="'
     adlib_dir = os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.adlib_dir)
@@ -115,7 +116,7 @@ def get_backing_chord(cfg):
     print(" done.")
 
 
-def main(cfg):
+def main(cfg: DictConfig) -> None:
     """Perform preprocess."""
     # Download Omnibook MusicXML
     get_music_xml(cfg)

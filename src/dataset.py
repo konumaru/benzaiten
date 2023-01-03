@@ -3,13 +3,14 @@ import random
 from typing import Any, Tuple
 
 import joblib
+from omegaconf import DictConfig
 from torch.utils.data import DataLoader, Dataset
 
 
 class BenzaitenDataset(Dataset):
     """Build Dataset for training."""
 
-    def __init__(self, cfg) -> None:
+    def __init__(self, cfg: DictConfig) -> None:
         """Initialize class."""
         super().__init__()
 
@@ -24,7 +25,7 @@ class BenzaitenDataset(Dataset):
 
     def __len__(self) -> int:
         """Return dataset size."""
-        return self.data_all.shape[0]
+        return len(self.data_all)
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """Fetch items.
@@ -38,11 +39,11 @@ class BenzaitenDataset(Dataset):
         return self.data_all[index], self.label_all[index]
 
 
-def _worker_init_fn(worker_id):
+def _worker_init_fn(worker_id: int) -> None:
     random.seed(worker_id)
 
 
-def get_dataloader(cfg):
+def get_dataloader(cfg: DictConfig) -> DataLoader:
     dataset = BenzaitenDataset(cfg)
     dataloader = DataLoader(
         dataset,

@@ -1,6 +1,6 @@
 import csv
 import os
-from typing import List
+from typing import Any, List, Tuple
 
 import mido
 import music21
@@ -8,7 +8,9 @@ import numpy as np
 from omegaconf import DictConfig
 
 
-def make_note_and_chord_seq_from_musicxml(score, total_measures, n_beats, beat_reso):
+def make_note_and_chord_seq_from_musicxml(
+    score: Any, total_measures: int, n_beats: int, beat_reso: int
+) -> Tuple[List[int], List[int]]:
     """Generate note column and chord symbol column from MusicXML.
 
     Args:
@@ -21,8 +23,8 @@ def make_note_and_chord_seq_from_musicxml(score, total_measures, n_beats, beat_r
         _type_: _description_
     """
 
-    note_seq = [None] * (total_measures * n_beats * beat_reso)
-    chord_seq = [None] * (total_measures * n_beats * beat_reso)
+    note_seq = [None] * int(total_measures * n_beats * beat_reso)
+    chord_seq = [None] * int(total_measures * n_beats * beat_reso)
 
     for element in score.parts[0].elements:
         if isinstance(element, music21.stream.Measure):  # type: ignore
@@ -34,7 +36,7 @@ def make_note_and_chord_seq_from_musicxml(score, total_measures, n_beats, beat_r
                     offset = onset + note._duration.quarterLength  # type: ignore
 
                     for i in range(int(onset * beat_reso), int(offset * beat_reso + 1)):
-                        note_seq[i] = note
+                        note_seq[i] = note  # type: ignore
 
                 if isinstance(note, music21.harmony.ChordSymbol):
                     chord_offset = measure_offset + note.offset
@@ -42,12 +44,14 @@ def make_note_and_chord_seq_from_musicxml(score, total_measures, n_beats, beat_r
                         int(chord_offset * beat_reso),
                         int((measure_offset + n_beats) * beat_reso + 1),
                     ):
-                        chord_seq[i] = note
+                        chord_seq[i] = note  # type: ignore
 
-    return note_seq, chord_seq
+    return note_seq, chord_seq  # type: ignore
 
 
-def note_seq_to_onehot(note_seq, notenum_thru, notenum_from):
+def note_seq_to_onehot(
+    note_seq: List[int], notenum_thru: int, notenum_from: int
+) -> np.ndarray:
     """_summary_
 
     Args:
@@ -64,23 +68,29 @@ def note_seq_to_onehot(note_seq, notenum_thru, notenum_from):
     matrix = np.zeros((n_note_seq, n_note_width))
     for i in range(n_note_seq):
         if note_seq[i] is not None:
-            matrix[i, note_seq[i].pitch.midi - notenum_from] = 1
+            matrix[i, note_seq[i].pitch.midi - notenum_from] = 1  # type: ignore
     return matrix
 
 
-def add_rest_nodes(onehot_seq):
+def add_rest_nodes(onehot_seq: np.ndarray) -> np.ndarray:
     rest = 1 - np.sum(onehot_seq, axis=1)
     rest = np.expand_dims(rest, 1)
     return np.concatenate([onehot_seq, rest], axis=1)
 
 
-def extract_seq(index, onehot_seq, chroma_seq, unit_measures, width):
+def extract_seq(
+    index: int,
+    onehot_seq: np.ndarray,
+    chroma_seq: np.ndarray,
+    unit_measures: int,
+    width: int,
+) -> Tuple[np.ndarray, np.ndarray]:
     onehot_vectors = onehot_seq[index * width : (index + unit_measures) * width, :]
     chord_vectors = chroma_seq[index * width : (index + unit_measures) * width, :]
     return onehot_vectors, chord_vectors
 
 
-def chord_seq_to_chroma(chord_seq):
+def chord_seq_to_chroma(chord_seq: List[Any]) -> np.ndarray:
     matrix = np.zeros((len(chord_seq), 12))
     for i, chord in enumerate(chord_seq):
         if chord is not None:
@@ -89,7 +99,7 @@ def chord_seq_to_chroma(chord_seq):
     return matrix
 
 
-def read_chord_file(csv_file, melody_length, n_beats) -> List:
+def read_chord_file(csv_file: str, melody_length: int, n_beats: int) -> List[str]:
     chord_seq = [None] * int(melody_length * n_beats)
 
     with open(csv_file, encoding="utf-8") as file_handler:
@@ -98,7 +108,7 @@ def read_chord_file(csv_file, melody_length, n_beats) -> List:
             measure_id = int(row[0])
             if measure_id < melody_length:
                 beat_id = int(row[1])
-                chord_seq[measure_id * 4 + beat_id] = music21.harmony.ChordSymbol(
+                chord_seq[measure_id * 4 + beat_id] = music21.harmony.ChordSymbol(  # type: ignore
                     root=row[2], kind=row[3], bass=row[4]
                 )
 
@@ -107,10 +117,12 @@ def read_chord_file(csv_file, melody_length, n_beats) -> List:
         chord = _chord if _chord is not None else chord
         chord_seq[i] = chord
 
-    return chord_seq
+    return chord_seq  # type: ignore
 
 
-def make_chord_seq(chord_prog: List, division, n_beats, beat_reso):
+def make_chord_seq(
+    chord_prog: List, division: int, n_beats: int, beat_reso: int
+) -> List[Any]:
     time_length = int(n_beats * beat_reso / division)
     seq = []
     for i, chord in enumerate(chord_prog):
@@ -123,11 +135,13 @@ def make_chord_seq(chord_prog: List, division, n_beats, beat_reso):
     return seq
 
 
-def make_empty_pianoroll(length, notenum_thru, notenum_from):
+def make_empty_pianoroll(
+    length: int, notenum_thru: int, notenum_from: int
+) -> np.ndarray:
     return np.zeros((length, notenum_thru - notenum_from + 1))
 
 
-def calc_notenums_from_pianoroll(pianoroll, notenum_from):
+def calc_notenums_from_pianoroll(pianoroll: np.ndarray, notenum_from: int) -> List[Any]:
     note_nums = []
     for i in range(pianoroll.shape[0]):
         num = np.argmax(pianoroll[i, :])
@@ -136,7 +150,7 @@ def calc_notenums_from_pianoroll(pianoroll, notenum_from):
     return note_nums
 
 
-def calc_durations(notenums):
+def calc_durations(notenums: List[Any]) -> Tuple[List[Any], List[int]]:
     note_length = len(notenums)
     duration = [1] * note_length
     for i in range(note_length):
@@ -151,7 +165,9 @@ def calc_durations(notenums):
     return notenums, duration
 
 
-def make_midi(cfg: DictConfig, notenums, durations):
+def make_midi(
+    cfg: DictConfig, notenums: List[Any], durations: List[int]
+) -> mido.MidiFile:
     beat_reso = cfg.feature.beat_reso
     n_beats = cfg.feature.n_beats
     transpose = cfg.feature.transpose
@@ -200,7 +216,9 @@ def make_midi(cfg: DictConfig, notenums, durations):
     return midi
 
 
-def calc_xy(onehot_vectors, chord_vectors):
+def calc_xy(
+    onehot_vectors: np.ndarray, chord_vectors: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
     data = np.concatenate(
         [onehot_vectors, chord_vectors],
         axis=1,
@@ -209,7 +227,13 @@ def calc_xy(onehot_vectors, chord_vectors):
     return data, label
 
 
-def divide_seq(cfg: DictConfig, onehot_seq, chroma_seq, data_all, label_all):
+def divide_seq(
+    cfg: DictConfig,
+    onehot_seq: np.ndarray,
+    chroma_seq: np.ndarray,
+    data_all: List,
+    label_all: List,
+) -> None:
     total_measures = cfg.feature.total_measures
     unit_measures = cfg.feature.unit_measures
     beat_width = cfg.feature.n_beats * cfg.feature.beat_reso

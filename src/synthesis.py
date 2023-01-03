@@ -2,9 +2,12 @@ import os
 
 import matplotlib.pyplot as plt
 import midi2audio
+import mido
 import numpy as np
 import torch
+import torch.nn as nn
 from hydra import compose, initialize
+from omegaconf import DictConfig
 from scipy.special import softmax
 
 from model import Seq2SeqMelodyComposer
@@ -22,7 +25,9 @@ from utils import (
 
 
 @torch.no_grad()
-def generate_melody(cfg, model, chroma_vec, device):
+def generate_melody(
+    cfg: DictConfig, model: nn.Module, chroma_vec: np.ndarray, device: torch.device
+) -> np.ndarray:
     """Perform a inference step to generate melody (piano-roll) data.
     Args:
         chroma_vec : sequence of many-hot (chroma) vectors
@@ -39,8 +44,8 @@ def generate_melody(cfg, model, chroma_vec, device):
         onehot_vectors, chord_vectors = extract_seq(
             i, piano_roll, chroma_vec, cfg.feature.unit_measures, beat_width
         )
-        feature, label = calc_xy(onehot_vectors, chord_vectors)
-        feature = torch.from_numpy(feature).to(device).float()
+        feature_np, _ = calc_xy(onehot_vectors, chord_vectors)
+        feature = torch.from_numpy(feature_np).to(device).float()
         feature = feature.unsqueeze(0)
         y_new = model(feature)
         y_new = y_new.to("cpu").detach().numpy().copy()
@@ -56,7 +61,9 @@ def generate_melody(cfg, model, chroma_vec, device):
     return piano_roll
 
 
-def generate_midi(cfg, model, chord_file, device):
+def generate_midi(
+    cfg: DictConfig, model: nn.Module, chord_file: str, device: torch.device
+) -> mido.MidiFile:
     """Synthesize melody with a trained model.
     Args:
         chord_file: a file of chord sequence (csv)
@@ -80,7 +87,7 @@ def generate_midi(cfg, model, chord_file, device):
     return midi
 
 
-def main(cfg):
+def main(cfg: DictConfig) -> None:
     """Perform ad-lib melody synthesis."""
 
     # setup network and load checkpoint

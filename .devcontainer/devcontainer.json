@@ -23,29 +23,13 @@
     "kddejong.vscode-cfn-lint",
     "padjon.save-and-run-ext",
     "christian-kohler.path-intellisense",
-    "vscodevim.vim"
+    "vscodevim.vim",
+    "wayou.vscode-todo-highlight",
+    "usernamehw.errorlens"
   ],
   "settings": {
     "eslint.workingDirectories": [{ "mode": "auto" }],
-    "python.condaPath": "/opt/conda/bin/conda",
-    "python.defaultInterpreterPath": "/usr/local/bin/python",
-    "python.pythonPath": "/usr/local/bin/python",
-    "python.languageServer": "Pylance",
-    "python.analysis.typeCheckingMode": "basic",
-    "python.analysis.completeFunctionParens": true,
-    "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true,
-    "python.linting.flake8Path": "/usr/local/bin/flake",
-    "python.linting.flake8Args": [
-      "--max-line-length=88",
-      "--ignore=E203,E722,W503,W504"
-    ],
-    "python.formatting.provider": "black",
-    "python.formatting.blackPath": "/usr/local/bin/black",
-    "python.formatting.blackArgs": ["--line-length", "88"],
-    "isort.path": ["/usr/local/bin/isort"],
-    "python.testing.cwd": "${workspaceFolder}",
+    // python
     "[python]": {
       "editor.tabSize": 4,
       "editor.formatOnSave": true,
@@ -53,6 +37,25 @@
         "source.organizeImports": true
       }
     },
+    "python.condaPath": "/opt/conda/bin/conda",
+    "python.defaultInterpreterPath": "/usr/local/bin/python",
+    "python.pythonPath": "/usr/local/bin/python",
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.completeFunctionParens": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Path": "/usr/local/bin/pflake8",
+    "python.linting.mypyEnabled": true,
+    "python.linting.mypyPath": "/usr/local/bin/mypy",
+    "python.formatting.provider": "black",
+    "python.formatting.blackPath": "/usr/local/bin/black",
+    "python.formatting.blackArgs": ["--line-length", "88"],
+    "isort.path": ["/usr/local/bin/isort"],
+    "python.testing.cwd": "${workspaceFolder}",
+    "autoDocstring.docstringFormat": "google",
+    // editor
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
     "editor.formatOnPaste": false,

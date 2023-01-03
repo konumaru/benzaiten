@@ -2,9 +2,9 @@ import os
 from collections import namedtuple
 
 import torch
+import torch.nn as nn
 from hydra import compose, initialize
 from omegaconf import DictConfig, OmegaConf
-from rich.progress import track
 from torch.nn.utils import clip_grad_norm_
 
 from dataset import get_dataloader
@@ -43,7 +43,7 @@ def training_step(batch, loss_func, device: torch.device):
     return loss
 
 
-def training_loop(cfg: DictConfig, modules, device: torch.device):
+def training_loop(cfg: DictConfig, modules, device: torch.device) -> None:
     """Perform training loop."""
     dataloader, model, loss_func, optimizer, lr_scheduler = modules
     model.train()  # turn on train mode
@@ -64,7 +64,7 @@ def training_loop(cfg: DictConfig, modules, device: torch.device):
         print(f"Epoch {epoch: >4}/{n_epoch}: loss = {epoch_loss:.6f}")
 
 
-def save_checkpoint(cfg: DictConfig, modules):
+def save_checkpoint(cfg: DictConfig, modules: nn.Module) -> None:
     """Save checkpoint."""
     model = modules.model
     model_dir = os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.model_dir)
@@ -72,7 +72,7 @@ def save_checkpoint(cfg: DictConfig, modules):
     torch.save(model.state_dict(), model_file)
 
 
-def main(cfg: DictConfig):
+def main(cfg: DictConfig) -> None:
     """Perform model training."""
     print(OmegaConf.to_yaml(cfg), flush=True)  # dump configuration
 

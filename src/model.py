@@ -1,23 +1,30 @@
+from typing import Any, Tuple
+
 import torch
 import torch.nn as nn
+from omegaconf import DictConfig
 
 
 class Encoder(nn.Module):
-    def __init__(self, input_dim, emb_dim, hidden_dim, n_layers=1) -> None:
+    def __init__(
+        self, input_dim: int, emb_dim: int, hidden_dim: int, n_layers: int = 1
+    ) -> None:
         super().__init__()
         self.hidden_dim = hidden_dim
         self.n_layers = n_layers
         self.embedding = nn.Linear(input_dim, emb_dim)
         self.rnn = nn.LSTM(emb_dim, hidden_dim, n_layers, batch_first=True)
 
-    def forward(self, source):
+    def forward(
+        self, source: torch.Tensor
+    ) -> Tuple[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
         embedded = self.embedding(source)
         outputs, (hidden, cell) = self.rnn(embedded)
         return outputs, (hidden, cell)
 
 
 class Decoder(nn.Module):
-    def __init__(self, output_dim, hidden_dim, n_layers=1) -> None:
+    def __init__(self, output_dim: int, hidden_dim: int, n_layers: int = 1) -> None:
         super().__init__()
         self.hidden_dim = hidden_dim
         self.n_layers = n_layers
@@ -27,14 +34,18 @@ class Decoder(nn.Module):
         )
         self.fc_out = nn.Linear(hidden_dim, output_dim)
 
-    def forward(self, inputs):
+    def forward(
+        self, inputs: torch.Tensor
+    ) -> Tuple[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
         output, (hidden, cell) = self.rnn(inputs)
         prediction = self.fc_out(output)
         return prediction, (hidden, cell)
 
 
 class VariantionalAutoEncoder(nn.Module):
-    def __init__(self, input_dim, hidden_dim, latent_dim, n_hidden=0) -> None:
+    def __init__(
+        self, input_dim: int, hidden_dim: int, latent_dim: int, n_hidden: int = 0
+    ) -> None:
         super().__init__()
 
         self.n_hidden = n_hidden
@@ -53,7 +64,7 @@ class VariantionalAutoEncoder(nn.Module):
 
         self.activation = nn.ReLU()
 
-    def encode(self, inputs):
+    def encode(self, inputs: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         hidden = self.activation(self.enc_layers[0](inputs))
         for i in range(self.n_hidden):
             hidden = self.activation(self.enc_layers[i + 1](hidden))
@@ -61,20 +72,24 @@ class VariantionalAutoEncoder(nn.Module):
         logvar = self.enc_layers[-1](hidden)
         return mean, logvar
 
-    def reparameterization(self, mean, logvar):
+    def reparameterization(
+        self, mean: torch.Tensor, logvar: torch.Tensor
+    ) -> torch.Tensor:
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         latent = mean + eps * std
         return latent
 
-    def decode(self, latent) -> torch.Tensor:
+    def decode(self, latent: torch.Tensor) -> torch.Tensor:
         hidden = self.activation(self.dec_layers[0](latent))
         for i in range(self.n_hidden):
             hidden = self.activation(self.dec_layers[i + 1](hidden))
-        reconst = self.dec_layers[-1](hidden)
+        reconst: torch.Tensor = self.dec_layers[-1](hidden)
         return reconst
 
-    def forward(self, inputs):
+    def forward(
+        self, inputs: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         mean, logvar = self.encode(inputs)
         latent = self.reparameterization(mean, logvar)
         reconst = self.decode(latent)
@@ -82,7 +97,7 @@ class VariantionalAutoEncoder(nn.Module):
 
 
 class Seq2SeqMelodyComposer(nn.Module):
-    def __init__(self, config, device) -> None:
+    def __init__(self, config: DictConfig, device: torch.device) -> None:
         super().__init__()
 
         self.encoder = Encoder(
@@ -103,7 +118,7 @@ class Seq2SeqMelodyComposer(nn.Module):
             config.model.vae.n_hidden,
         ).to(device)
 
-    def forward(self, inputs) -> torch.Tensor:
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         seq_len = inputs.shape[1]
         _, encoder_state = self.encoder(inputs)
         hiddens = torch.squeeze(encoder_state[0])
@@ -111,10 +126,10 @@ class Seq2SeqMelodyComposer(nn.Module):
         reconst_state, _, _ = self.vae(hiddens)
         inputs = reconst_state.unsqueeze(1)
         inputs = inputs.repeat(1, seq_len, 1)
-        outputs, _ = self.decoder(inputs)
-        return outputs
+        prediction: torch.Tensor = self.decoder(inputs)[0]
+        return prediction
 
 
-def get_model(config, device):
+def get_model(config: DictConfig, device: torch.device) -> Seq2SeqMelodyComposer:
     model = Seq2SeqMelodyComposer(config, device)
     return model
