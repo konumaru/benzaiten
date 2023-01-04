@@ -1,9 +1,11 @@
 version: "3"
 services:
   benzaiten:
+    container_name: tests-container
     build:
       context: ..
       dockerfile: docker/Dockerfile
     volumes:
       - .:/workspace
     working_dir: /workspace
+    tty: true

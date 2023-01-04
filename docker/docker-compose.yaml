@@ -2,10 +2,10 @@ version: "3"
 services:
   benzaiten:
     build:
-      context: .
-      dockerfile: ./Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     volumes:
-      - ..:/workspace
+      - .:/workspace
     working_dir: /workspace
     tty: true
     deploy:
