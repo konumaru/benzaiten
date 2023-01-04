@@ -3,7 +3,7 @@
 // If you want to run as a non-root user in the container, see .devcontainer/docker-compose.yml.
 {
   "name": "dev-container",
-  "dockerComposeFile": ["./docker/docker-compose.yml"],
+  "dockerComposeFile": ["../docker/docker-compose.yml"],
   "service": "benzaiten",
   "workspaceFolder": "/workspace",
   "extensions": [

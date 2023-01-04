@@ -1,4 +1,4 @@
 
 .PHONY: tests
 tests:
-	pytest -s --cov=src/
+	poetry run pytest -s --cov=src/

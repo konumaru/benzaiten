@@ -3,9 +3,9 @@ services:
   benzaiten:
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     volumes:
-      - .:/workspace
+      - ..:/workspace
     working_dir: /workspace
     tty: true
     deploy:
