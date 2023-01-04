@@ -1,4 +1,4 @@
-name: PyTest
+name: Pytest
 
 on:
   pull_request:
@@ -18,7 +18,5 @@ jobs:
         run: docker-compose build
       - name: Docker Compose Up
         run: docker-compose up -d
-      - name: Pipenv Install
-        run: docker-compose exec -T app pipenv install
-      - name: Pipenv Run Pytest
-        run: docker-compose exec -T app pipenv run pytest
+      - name: Run Pytest
+        run: docker-compose exec -T benzaiten make tests
