@@ -11,5 +11,5 @@ RUN pip install -U pip
 
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
-COPY ./pyproject.toml /workspace/pyproject.toml
+COPY pyproject.toml /workspace/pyproject.toml
 RUN poetry install
