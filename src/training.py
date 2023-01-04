@@ -6,7 +6,7 @@ import hydra
 import torch
 import torch.nn as nn
 from omegaconf import DictConfig, OmegaConf
-from torch.nn.utils import clip_grad_norm_
+from torch.nn.utils import clip_grad_norm_  # type: ignore
 
 from config import Config
 from dataset import get_dataloader
@@ -42,7 +42,10 @@ def training_step(
 ) -> torch.Tensor:
     """Perform a training step."""
     source, target = batch
-    preds = {"source": source.to(device).float(), "target": target.to(device).long()}
+    preds = {
+        "source": source.to(device).float(),
+        "target": target.to(device).long(),
+    }
     loss = loss_func(preds)
     return loss  # type: ignore
 

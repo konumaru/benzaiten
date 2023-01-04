@@ -33,6 +33,7 @@
     "[python]": {
       "editor.tabSize": 4,
       "editor.formatOnSave": true,
+      "editor.insertSpaces": true,
       "editor.codeActionsOnSave": {
         "source.organizeImports": true
       }
@@ -55,6 +56,11 @@
     "isort.path": ["/usr/local/bin/isort"],
     "python.testing.cwd": "${workspaceFolder}",
     "autoDocstring.docstringFormat": "google",
+    // Makefile
+    "[makefile]": {
+      "editor.insertSpaces": false,
+      "editor.detectIndentation": false
+    },
     // editor
     "editor.formatOnSave": true,
     "editor.formatOnType": true,

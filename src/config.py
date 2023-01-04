@@ -46,7 +46,9 @@ class Feature:
 
 @dataclass
 class Preprocessing:
-    xml_url: str = "https://homepages.loria.fr/evincent/omnibook/omnibook_xml.zip"
+    xml_url: str = (
+        "https://homepages.loria.fr/evincent/omnibook/omnibook_xml.zip"
+    )
     feat_file: str = "benzaiten_feats.pkl"
 
 
@@ -125,7 +127,9 @@ class TrainConfig:
     n_batch: int = 32
     learning_rate: float = 3e-4
 
-    optimizer: OptimizerConfig = field(default=OptimizerConfig(lr=learning_rate))
+    optimizer: OptimizerConfig = field(
+        default=OptimizerConfig(lr=learning_rate)
+    )
     lr_scheduler: SchedulerConfig = field(default=SchedulerConfig())
 
     use_grad_clip: bool = False  # 勾配クリッピングを使うか否か

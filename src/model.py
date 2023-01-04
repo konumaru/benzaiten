@@ -26,7 +26,9 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, output_dim: int, hidden_dim: int, n_layers: int = 1) -> None:
+    def __init__(
+        self, output_dim: int, hidden_dim: int, n_layers: int = 1
+    ) -> None:
         super().__init__()
         self.hidden_dim = hidden_dim
         self.n_layers = n_layers
@@ -46,7 +48,11 @@ class Decoder(nn.Module):
 
 class VariantionalAutoEncoder(nn.Module):
     def __init__(
-        self, input_dim: int, hidden_dim: int, latent_dim: int, n_hidden: int = 0
+        self,
+        input_dim: int,
+        hidden_dim: int,
+        latent_dim: int,
+        n_hidden: int = 0,
     ) -> None:
         super().__init__()
 
@@ -54,19 +60,28 @@ class VariantionalAutoEncoder(nn.Module):
 
         layers = nn.ModuleList([])
         layers += [nn.Linear(input_dim, hidden_dim)]
-        layers += [nn.Linear(hidden_dim, hidden_dim) for _ in range(self.n_hidden)]
-        layers += [nn.Linear(hidden_dim, latent_dim), nn.Linear(hidden_dim, latent_dim)]
+        layers += [
+            nn.Linear(hidden_dim, hidden_dim) for _ in range(self.n_hidden)
+        ]
+        layers += [
+            nn.Linear(hidden_dim, latent_dim),
+            nn.Linear(hidden_dim, latent_dim),
+        ]
         self.enc_layers = layers
 
         layers = nn.ModuleList([])
         layers += [nn.Linear(latent_dim, hidden_dim)]
-        layers += [nn.Linear(hidden_dim, hidden_dim) for _ in range(self.n_hidden)]
+        layers += [
+            nn.Linear(hidden_dim, hidden_dim) for _ in range(self.n_hidden)
+        ]
         layers += [nn.Linear(hidden_dim, input_dim)]
         self.dec_layers = layers
 
         self.activation = nn.ReLU()
 
-    def encode(self, inputs: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def encode(
+        self, inputs: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         hidden = self.activation(self.enc_layers[0](inputs))
         for i in range(self.n_hidden):
             hidden = self.activation(self.enc_layers[i + 1](hidden))

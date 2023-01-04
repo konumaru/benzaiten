@@ -36,7 +36,9 @@ def make_note_and_chord_seq_from_musicxml(
                     onset = measure_offset + note._activeSiteStoredOffset  # type: ignore
                     offset = onset + note._duration.quarterLength  # type: ignore
 
-                    for i in range(int(onset * beat_reso), int(offset * beat_reso + 1)):
+                    for i in range(
+                        int(onset * beat_reso), int(offset * beat_reso + 1)
+                    ):
                         note_seq[i] = note  # type: ignore
 
                 if isinstance(note, music21.harmony.ChordSymbol):
@@ -86,8 +88,12 @@ def extract_seq(
     unit_measures: int,
     width: int,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    onehot_vectors = onehot_seq[index * width : (index + unit_measures) * width, :]
-    chord_vectors = chroma_seq[index * width : (index + unit_measures) * width, :]
+    onehot_vectors = onehot_seq[
+        index * width : (index + unit_measures) * width, :
+    ]
+    chord_vectors = chroma_seq[
+        index * width : (index + unit_measures) * width, :
+    ]
     return onehot_vectors, chord_vectors
 
 
@@ -100,7 +106,9 @@ def chord_seq_to_chroma(chord_seq: List[Any]) -> np.ndarray:
     return matrix
 
 
-def read_chord_file(csv_file: str, melody_length: int, n_beats: int) -> List[str]:
+def read_chord_file(
+    csv_file: str, melody_length: int, n_beats: int
+) -> List[str]:
     chord_seq = [None] * int(melody_length * n_beats)
 
     with open(csv_file, encoding="utf-8") as file_handler:
@@ -142,7 +150,9 @@ def make_empty_pianoroll(
     return np.zeros((length, notenum_thru - notenum_from + 1))
 
 
-def calc_notenums_from_pianoroll(pianoroll: np.ndarray, notenum_from: int) -> List[Any]:
+def calc_notenums_from_pianoroll(
+    pianoroll: np.ndarray, notenum_from: int
+) -> List[Any]:
     note_nums = []
     for i in range(pianoroll.shape[0]):
         num = np.argmax(pianoroll[i, :])
@@ -166,7 +176,9 @@ def calc_durations(notenums: List[Any]) -> Tuple[List[Any], List[int]]:
     return notenums, duration
 
 
-def make_midi(cfg: Config, notenums: List[Any], durations: List[int]) -> mido.MidiFile:
+def make_midi(
+    cfg: Config, notenums: List[Any], durations: List[int]
+) -> mido.MidiFile:
     beat_reso = cfg.feature.beat_reso
     n_beats = cfg.feature.n_beats
     transpose = cfg.feature.transpose

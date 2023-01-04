@@ -55,7 +55,9 @@ def generate_melody(
 
     plt.matshow(np.transpose(piano_roll))
     png_file = os.path.join(
-        cfg.benzaiten.root_dir, cfg.benzaiten.adlib_dir, cfg.demo.pianoroll_file
+        cfg.benzaiten.root_dir,
+        cfg.benzaiten.adlib_dir,
+        cfg.demo.pianoroll_file,
     )
     plt.savefig(png_file)
     return piano_roll
@@ -81,7 +83,9 @@ def generate_midi(
     )
     chroma_vec = chord_seq_to_chroma(chord_seq)
     piano_roll = generate_melody(cfg, model, chroma_vec, device)
-    notenums = calc_notenums_from_pianoroll(piano_roll, cfg.feature.notenum_from)
+    notenums = calc_notenums_from_pianoroll(
+        piano_roll, cfg.feature.notenum_from
+    )
     notenums, durations = calc_durations(notenums)
     midi = make_midi(cfg, notenums, durations)
     return midi

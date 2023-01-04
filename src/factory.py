@@ -20,7 +20,9 @@ def get_optimizer(cfg: Config, model: nn.Module) -> Optimizer:
 
 def get_lr_scheduler(cfg: Config, optimizer: Optimizer) -> _LRScheduler:
     """Instantiate scheduler."""
-    lr_scheduler_class = getattr(optim.lr_scheduler, cfg.training.lr_scheduler.name)
+    lr_scheduler_class = getattr(
+        optim.lr_scheduler, cfg.training.lr_scheduler.name
+    )
     lr_scheduler: _LRScheduler = lr_scheduler_class(
         optimizer, **cfg.training.lr_scheduler.params  # type: ignore
     )

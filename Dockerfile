@@ -5,7 +5,7 @@ RUN mkdir /workspace
 WORKDIR /workspace
 
 RUN apt update
-RUN apt install -y fluidsynth
+RUN apt install -y fluidsynth make
 
 RUN pip install -U pip
 
