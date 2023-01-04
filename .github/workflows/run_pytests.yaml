@@ -21,4 +21,4 @@ jobs:
       - name: Run Pytest
         run:
           docker compose -f docker/docker-compose.test.yaml exec -T benzaiten \
-          make tests
+          pytest
