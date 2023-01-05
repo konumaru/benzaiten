@@ -97,10 +97,15 @@ def main(cfg: Config) -> None:
 
     # setup network and load checkpoint
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    ckkpt_dir = os.path.join(cfg.benzaiten.root_dir, cfg.demo.chkpt_dir)
-    checkpoint = os.path.join(ckkpt_dir, cfg.demo.chkpt_file)
-    model = Seq2SeqMelodyComposer(cfg, device)
-    model.load_state_dict(torch.load(checkpoint))
+    # ckkpt_dir = os.path.join(cfg.benzaiten.root_dir, cfg.demo.chkpt_dir)
+    # checkpoint = os.path.join(ckkpt_dir, cfg.demo.chkpt_file)
+    # NOTE: cfg.exp.nameに応じて定義するモデルを切り替える必要がありそう
+    # e.g. if "LSTM" in cfg.exp.name ~~~~
+    model = Seq2SeqMelodyComposer(cfg)
+    model.load_state_dict(
+        torch.load(f"data/model/{cfg.exp.name}/state_dict.pt")
+    )
+    model.to(device)
     model.eval()  # turn on eval mode
 
     # generate ad-lib melody in midi format
@@ -114,11 +119,17 @@ def main(cfg: Config) -> None:
     midi.save(midi_file)
 
     # export midi to wav
-    wav_file = os.path.join(
-        cfg.benzaiten.root_dir, cfg.benzaiten.adlib_dir, cfg.demo.wav_file
+    wav_dir = os.path.join(
+        cfg.benzaiten.root_dir,
+        "generated",
+        cfg.demo.backing_file.rsplit(".")[0],
+        cfg.exp.name,
     )
+    os.makedirs(wav_dir, exist_ok=True)
     fluid_synth = midi2audio.FluidSynth(sound_font=cfg.demo.sound_font)
-    fluid_synth.midi_to_audio(midi_file, wav_file)
+    fluid_synth.midi_to_audio(
+        midi_file, os.path.join(wav_dir, cfg.demo.wav_file)
+    )
 
 
 if __name__ == "__main__":

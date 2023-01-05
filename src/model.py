@@ -1,8 +1,7 @@
-from typing import Any, Tuple
+from typing import Tuple
 
 import torch
 import torch.nn as nn
-from omegaconf import DictConfig
 
 from config import Config
 
@@ -114,7 +113,7 @@ class VariantionalAutoEncoder(nn.Module):
 
 
 class Seq2SeqMelodyComposer(nn.Module):
-    def __init__(self, config: Config, device: torch.device) -> None:
+    def __init__(self, config: Config) -> None:
         super().__init__()
 
         self.encoder = Encoder(
@@ -122,18 +121,18 @@ class Seq2SeqMelodyComposer(nn.Module):
             config.model.encoder.emb_dim,
             config.model.encoder.hidden_dim,
             config.model.encoder.n_layers,
-        ).to(device)
+        )
         self.decoder = Decoder(
             config.model.decoder.output_dim,
             config.model.decoder.hidden_dim,
             config.model.decoder.n_layers,
-        ).to(device)
+        )
         self.vae = VariantionalAutoEncoder(
             config.model.encoder.hidden_dim,
             config.model.vae.hidden_dim,
             config.model.vae.latent_dim,
             config.model.vae.n_hidden,
-        ).to(device)
+        )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         seq_len = inputs.shape[1]
@@ -148,5 +147,5 @@ class Seq2SeqMelodyComposer(nn.Module):
 
 
 def get_model(config: Config, device: torch.device) -> Seq2SeqMelodyComposer:
-    model = Seq2SeqMelodyComposer(config, device)
+    model = Seq2SeqMelodyComposer(config)
     return model

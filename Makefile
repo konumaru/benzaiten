@@ -2,8 +2,7 @@
 .PHONY: tests
 
 
-
-test:
+tests:
 	black src/
 	isort src/
 	pytest -s --cov=./src

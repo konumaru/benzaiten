@@ -20,7 +20,7 @@
     "esbenp.prettier-vscode",
     "christian-kohler.path-intellisense",
     "vscodevim.vim",
-    "Gruntfuggly.todo-tree",
+    "wayou.vscode-todo-highlight",
     "usernamehw.errorlens"
   ],
   "settings": {
@@ -55,7 +55,6 @@
     "python.linting.mypyPath": "/usr/local/bin/mypy",
     "python.formatting.provider": "black",
     "python.formatting.blackPath": "/usr/local/bin/black",
-    "python.formatting.blackArgs": ["--line-length", "88"],
     "isort.path": ["/usr/local/bin/isort"],
     "python.testing.cwd": "${workspaceFolder}",
     "autoDocstring.docstringFormat": "google",

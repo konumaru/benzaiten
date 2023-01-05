@@ -5,7 +5,10 @@ RUN mkdir /workspace
 WORKDIR /workspace
 
 RUN apt update
-RUN apt install -y fluidsynth make
+RUN apt install -y fluidsynth make bash-completion
+
+RUN echo "[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
+    . /usr/share/bash-completion/bash_completion" >> ~/.bashrc
 
 RUN pip install -U pip
 

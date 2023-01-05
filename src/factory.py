@@ -1,7 +1,6 @@
 from typing import Dict
 
 import torch
-from omegaconf import DictConfig
 from torch import nn, optim
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer

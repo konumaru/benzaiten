@@ -1,25 +1,22 @@
 from dataclasses import dataclass, field
+from typing import Any, List
 
 from hydra.core.config_store import ConfigStore
 from omegaconf import DictConfig, OmegaConf
 
+hydra_dir = "./data/hydra_output/"
 hydra_config = {
     "mode": "MULTIRUN",
     "job": {
-        "name": "LSTM",
         "config": {"override_dirname": {"exclude_keys": ["{seed}"]}},
     },
     "run": {
-        "dir": """
-            ./data/hydra_output/\
-            ${hydra.job.name}/${hydra.job.override_dirname}/seed=${seed}
-        """
+        "dir": hydra_dir
+        + "${exp.name}/${hydra.job.override_dirname}/seed=${seed}"
     },
     "sweep": {
-        "dir": """
-            ./data/hydra_output/\
-            ${hydra.job.name}/${hydra.job.override_dirname}/seed=${seed}
-        """
+        "dir": hydra_dir
+        + "${exp.name}/${hydra.job.override_dirname}/seed=${seed}"
     },
 }
 
@@ -86,7 +83,7 @@ class VAE:
 
 @dataclass
 class LSTMConfig:
-    model_name: str = "LSTM"
+    name: str = "LSTM"
     hidden_dim: int = 1024
 
     encoder: Encoder = field(default=Encoder(hidden_dim=hidden_dim))
@@ -97,7 +94,7 @@ class LSTMConfig:
 # TODO: implement music transformer.
 @dataclass
 class MusicTransformerConfig:
-    model_name: str = "MusicTransfomer"
+    name: str = "MusicTransfomer"
 
 
 @dataclass
@@ -158,7 +155,13 @@ class DemoConfig:
 
 
 @dataclass
+class ExpConfig:
+    name: str = "working"
+
+
+@dataclass
 class Config:
+    exp: ExpConfig = field(default_factory=ExpConfig)
     seed: int = 42
     benzaiten: Benzaiten = field(default_factory=Benzaiten)
     preprocess: Preprocessing = field(default_factory=Preprocessing)

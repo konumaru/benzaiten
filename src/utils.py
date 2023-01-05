@@ -15,13 +15,13 @@ def make_note_and_chord_seq_from_musicxml(
     """Generate note column and chord symbol column from MusicXML.
 
     Args:
-        score (_type_): _description_
-        total_measures (_type_): _description_
-        n_beats (_type_): _description_
-        beat_reso (_type_): _description_
+        score (Any): _description_
+        total_measures (int): _description_
+        n_beats (int): _description_
+        beat_reso (int): _description_
 
     Returns:
-        _type_: _description_
+        Tuple[List[int], List[int]]: _description_
     """
 
     note_seq = [None] * int(total_measures * n_beats * beat_reso)
@@ -134,9 +134,8 @@ def make_chord_seq(
 ) -> List[Any]:
     time_length = int(n_beats * beat_reso / division)
     seq = []
-    for i, chord in enumerate(chord_prog):
-        for _t in range(time_length):
-            idx = int(i * time_length) + _t
+    for _, chord in enumerate(chord_prog):
+        for _ in range(time_length):
             if isinstance(chord, music21.harmony.ChordSymbol):
                 seq.append(chord)
             else:

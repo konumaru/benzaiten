@@ -1,10 +1,13 @@
 # Todo
 
-- [ ] transformer モデルの実装
+- [ ] 異なる学習パラメータでモデルを学習
+  - [ ] batch_size=2,4,16
+  - [ ] seq_len=256,512,2924
+- [ ] 前処理を理解するためにテストを書く
 - [ ] 学習データの追加
 - [ ] pytorch lightning 導入
-- [ ] 出力ファイルの余計な空白の除去
-- [ ] モデルのバージョン管理
+- [ ] Many to Many の LSTM モデルで学習
+- [ ] music transformer モデルの実装
 
 ## 学習データ
 
@@ -21,9 +24,9 @@
   - 当日サンプル同様の midi file が配布される
   - path を指定したらそれに切り替わるようにしたい
 - output tree
-  - output/
+  - generated/
     - {input_backing_filename} # e.g. sample1_backing
-      - model_name/ # e.g. LSTM, LSTM_batch_size=2,seq_len=1024,
+      - exp_name/ # e.g. LSTM, LSTM_batch_size=2,seq_len=1024,
         MusicTransformer
         - output.midi
         - output.wav
@@ -46,10 +49,3 @@
 ## その他メモ
 
 - batch_size は小さく、seq_len を長く、がいいっぽい？
-
-## ステップ
-
-- いくつかの batch_size や seq_len で生成したメロディを比較できるようにする
-- いくつかの LSTM モデルを学習する
-- MusicTransformer に挑戦
-  - LSTM と前処理違うのが難しそう
