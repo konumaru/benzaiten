@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: docker Build
-        run: docker compose -f docker/docker-compose.test.yaml build
+        uses: actions/checkout@v3
+      - name: Docker Build
+        run: docker compose -f docker/docker-compose.test.yml build
       - name: Run Pytest
         run:
-          docker compose -f docker/docker-compose.test.yaml run --rm -T
-          benzaiten make tests
+          docker compose -f docker/docker-compose.test.yml run --rm -T benzaiten
+          make tests

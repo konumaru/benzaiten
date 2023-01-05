@@ -1,4 +1,6 @@
 
 .PHONY: tests
 tests:
-	poetry run pytest -s --cov=src/
+	black src/
+	isort src/
+	pytest -s --cov=./src
