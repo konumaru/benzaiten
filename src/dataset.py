@@ -3,7 +3,6 @@ import random
 from typing import Any, Tuple
 
 import joblib
-from omegaconf import DictConfig
 from torch.utils.data import DataLoader, Dataset
 
 from config import Config

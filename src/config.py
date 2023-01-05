@@ -1,6 +1,4 @@
-from abc import ABCMeta
 from dataclasses import dataclass, field
-from typing import Any, List
 
 from hydra.core.config_store import ConfigStore
 from omegaconf import DictConfig, OmegaConf
@@ -12,10 +10,16 @@ hydra_config = {
         "config": {"override_dirname": {"exclude_keys": ["{seed}"]}},
     },
     "run": {
-        "dir": "./data/hydra_output/${hydra.job.name}/${hydra.job.override_dirname}/seed=${seed}"
+        "dir": """
+            ./data/hydra_output/\
+            ${hydra.job.name}/${hydra.job.override_dirname}/seed=${seed}
+        """
     },
     "sweep": {
-        "dir": "./data/hydra_output/${hydra.job.name}/${hydra.job.override_dirname}/seed=${seed}"
+        "dir": """
+            ./data/hydra_output/\
+            ${hydra.job.name}/${hydra.job.override_dirname}/seed=${seed}
+        """
     },
 }
 
