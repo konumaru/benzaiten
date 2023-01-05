@@ -8,7 +8,7 @@
   "workspaceFolder": "/workspace",
   "extensions": [
     "ms-toolsai.jupyter-keymap",
-    "ms-python.python@2022.18.1",
+    "ms-python.python",
     "ms-python.vscode-pylance",
     "ms-python.black-formatter",
     "freakypie.code-python-isort",

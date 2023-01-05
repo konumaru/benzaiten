@@ -9,8 +9,6 @@ from torch.utils.data import DataLoader, Dataset
 from config import Config
 
 
-
-
 class BenzaitenDataset(Dataset):
     """Build Dataset for training."""
 
