@@ -10,6 +10,6 @@ RUN apt install -y fluidsynth make
 RUN pip install -U pip
 
 RUN pip install poetry
-RUN poetry config virtualenvs.in-project true
+RUN poetry config virtualenvs.create false
 COPY pyproject.toml /workspace/pyproject.toml
 RUN poetry install
