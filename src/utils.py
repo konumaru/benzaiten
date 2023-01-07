@@ -176,16 +176,13 @@ def calc_durations(notenums: List[Any]) -> Tuple[List[Any], List[int]]:
 
 
 def make_midi(
-    cfg: Config, notenums: List[Any], durations: List[int]
+    cfg: Config, backing_file: str, notenums: List[Any], durations: List[int]
 ) -> mido.MidiFile:
     beat_reso = cfg.feature.beat_reso
     n_beats = cfg.feature.n_beats
     transpose = cfg.feature.transpose
     intro_blank_measures = cfg.feature.intro_blank_measures
 
-    backing_file = os.path.join(
-        cfg.benzaiten.root_dir, cfg.benzaiten.adlib_dir, cfg.demo.backing_file
-    )
     midi = mido.MidiFile(backing_file)
     track = mido.MidiTrack()
     midi.tracks.append(track)

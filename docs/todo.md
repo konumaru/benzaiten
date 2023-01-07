@@ -1,25 +1,17 @@
 # Todo
 
-- [ ] 異なる学習パラメータでモデルを学習
-  - [ ] batch_size=2,4,16
-  - [ ] seq_len=256,512,2924
-- [ ] 前処理を理解するためにテストを書く
 - [ ] 学習データの追加
-- [ ] pytorch lightning 導入
+- [ ] 前処理を理解するためにテストを書く
 - [ ] Many to Many の LSTM モデルで学習
 - [ ] music transformer モデルの実装
 
 ## 学習データ
 
 - 新しく配布されたものを追加する
+
   - confing を A,Minor に対応させる必要がある
   - major, minor メロディー生成するモデルを分けるべきかもしれない
 
-## 出力について
-
-- `generate.py`を実行
-- あらかじめ用意してあった複数のモデルの複数回実行して、メロディを生成
-- 生成結果を比較して選びたい
 - コンペ特有の制約
   - 当日サンプル同様の midi file が配布される
   - path を指定したらそれに切り替わるようにしたい
@@ -46,6 +38,12 @@
   - Tensorflow 製なので実装膨らみそうだから避けたい
   - 一方で学習済みモデルなので使いたい気持ちもある
 
-## その他メモ
+## 生成
 
-- batch_size は小さく、seq_len を長く、がいいっぽい？
+以下のように実行したら生成されてほしい
+
+```sh
+python generate.py \
+  demo.name=sample1 \
+  exp.name=LSTM,LSTM_batchSize-2,LSTM_hiddenDim-256
+```

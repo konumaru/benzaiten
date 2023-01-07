@@ -56,15 +56,21 @@ def generate_melody(
     plt.matshow(np.transpose(piano_roll))
     png_file = os.path.join(
         cfg.benzaiten.root_dir,
-        cfg.benzaiten.adlib_dir,
-        cfg.demo.pianoroll_file,
+        cfg.demo.output_dir,
+        cfg.demo.name,
+        cfg.exp.name,
+        "piano_roll.png",
     )
     plt.savefig(png_file)
     return piano_roll
 
 
 def generate_midi(
-    cfg: Config, model: nn.Module, chord_file: str, device: torch.device
+    cfg: Config,
+    model: nn.Module,
+    backing_file: str,
+    chord_file: str,
+    device: torch.device,
 ) -> mido.MidiFile:
     """Synthesize melody with a trained model.
     Args:
@@ -87,49 +93,62 @@ def generate_midi(
         piano_roll, cfg.feature.notenum_from
     )
     notenums, durations = calc_durations(notenums)
-    midi = make_midi(cfg, notenums, durations)
+    midi = make_midi(cfg, backing_file, notenums, durations)
     return midi
 
 
 @hydra.main(version_base=None, config_name="config")
 def main(cfg: Config) -> None:
     """Perform ad-lib melody synthesis."""
+    output_dir = os.path.join(
+        cfg.benzaiten.root_dir,
+        cfg.demo.output_dir,
+        cfg.demo.name,
+        cfg.exp.name,
+    )
+    os.makedirs(output_dir, exist_ok=True)
 
     # setup network and load checkpoint
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # ckkpt_dir = os.path.join(cfg.benzaiten.root_dir, cfg.demo.chkpt_dir)
-    # checkpoint = os.path.join(ckkpt_dir, cfg.demo.chkpt_file)
-    # NOTE: cfg.exp.nameに応じて定義するモデルを切り替える必要がありそう
-    # e.g. if "LSTM" in cfg.exp.name ~~~~
     model = Seq2SeqMelodyComposer(cfg)
     model.load_state_dict(
-        torch.load(f"data/model/{cfg.exp.name}/state_dict.pt")
+        torch.load(f"data/train/{cfg.exp.name}/state_dict.pt")
     )
     model.to(device)
     model.eval()  # turn on eval mode
 
     # generate ad-lib melody in midi format
+    backing_file = os.path.join(
+        cfg.benzaiten.root_dir,
+        cfg.demo.input_dir,
+        cfg.demo.name,
+        f"{cfg.demo.name}_backing.mid",
+    )
     chord_file = os.path.join(
-        cfg.benzaiten.root_dir, cfg.benzaiten.adlib_dir, cfg.demo.chord_file
+        cfg.benzaiten.root_dir,
+        cfg.demo.input_dir,
+        cfg.demo.name,
+        f"{cfg.demo.name}_chord.csv",
     )
-    midi_file = os.path.join(
-        cfg.benzaiten.root_dir, cfg.benzaiten.adlib_dir, cfg.demo.midi_file
-    )
-    midi = generate_midi(cfg, model, chord_file, device)
+    midi = generate_midi(cfg, model, backing_file, chord_file, device)
+    midi_file = os.path.join(output_dir, "output.midi")
     midi.save(midi_file)
 
     # export midi to wav
+    fluid_synth = midi2audio.FluidSynth(
+        sound_font="/usr/share/sounds/sf2/FluidR3_GM.sf2"
+    )
+    fluid_synth.midi_to_audio(
+        midi_file, os.path.join(output_dir, "output.wav")
+    )
     wav_dir = os.path.join(
         cfg.benzaiten.root_dir,
-        "generated",
-        cfg.demo.backing_file.rsplit(".")[0],
-        cfg.exp.name,
+        cfg.demo.output_dir,
+        cfg.demo.name,
+        cfg.demo.wav_dir,
     )
     os.makedirs(wav_dir, exist_ok=True)
-    fluid_synth = midi2audio.FluidSynth(sound_font=cfg.demo.sound_font)
-    fluid_synth.midi_to_audio(
-        midi_file, os.path.join(wav_dir, cfg.demo.wav_file)
-    )
+    fluid_synth.midi_to_audio(midi_file, wav_dir + f"{cfg.exp.name}.wav")
 
 
 if __name__ == "__main__":

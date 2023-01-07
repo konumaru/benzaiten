@@ -12,8 +12,6 @@
     "ms-python.vscode-pylance@2022.12.20",
     "ms-python.black-formatter",
     "njpwerner.autodocstring",
-    "henriiik.docker-linter",
-    "ms-azuretools.vscode-docker",
     "yzhang.markdown-all-in-one",
     "ms-vscode.makefile-tools",
     "dbaeumer.vscode-eslint",

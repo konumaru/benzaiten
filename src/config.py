@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Any, List
 
+import hydra
 from hydra.core.config_store import ConfigStore
 from omegaconf import DictConfig, OmegaConf
 
@@ -27,7 +27,6 @@ class Benzaiten:
     xml_dir: str = "xml/"
     model_dir: str = "model/"
     feat_dir: str = "feats/"
-    adlib_dir: str = "adlib/"
 
 
 @dataclass(frozen=True)
@@ -141,17 +140,11 @@ class TrainConfig:
 
 @dataclass
 class DemoConfig:
-    backing_fid: str = "1arGB0M7Z_iTf4vi4yE5vkaIyR5vdWhkt"  # 伴奏データのFile ID
-    chord_fid: str = "1Ksv-EuWQfyJ7kOWzQUQhiv2dzf-mdX45"  # コード進行データのFile ID
-    chkpt_dir: str = "model/"  # 訓練済みモデルファイルの置き場所
-    # →訓練直後の置き場所と合成用モデルの置き場所を区別指定可能にする
-    chkpt_file: str = "lstm_vae.pt"  # 合成に使うモデルファイル
-    sound_font: str = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
-    backing_file: str = "sample1_backing.mid"  # 伴奏データファイル
-    chord_file: str = "sample1_chord.csv"  # コード進行ファイル
-    midi_file: str = "output.mid"  # 出力ファイル (midi)
-    wav_file: str = "output.wav"  # 出力ファイル (wav)
-    pianoroll_file: str = "piano_roll.png"  # メロディのピアノロールもどきを画像で保存する
+    name: str = "sample1"
+    input_dir: str = "comp_inputs/"
+
+    output_dir: str = "generated/"
+    wav_dir: str = "all_wavs/"
 
 
 @dataclass
@@ -167,9 +160,6 @@ class Config:
     preprocess: Preprocessing = field(default_factory=Preprocessing)
     feature: Feature = field(default_factory=Feature)
     model: LSTMConfig = field(default_factory=LSTMConfig)
-    # model_configs: List[Any] = field(
-    #     default_factory=lambda: [ModelConfig, MusicTransformerConfig]
-    # )
     training: TrainConfig = field(default=TrainConfig())
     demo: DemoConfig = field(default_factory=DemoConfig)
 
@@ -179,3 +169,12 @@ class Config:
 # NOTE: No further use of cs.store to use auto-completion.
 cs: ConfigStore = ConfigStore.instance()
 cs.store(name="config", node=Config)
+
+
+@hydra.main(version_base=None, config_name="config")
+def main(cfg: Config) -> None:
+    print(OmegaConf.to_yaml(cfg))
+
+
+if __name__ == "__main__":
+    main()

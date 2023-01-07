@@ -7,8 +7,6 @@ import hydra
 import joblib
 import music21
 import numpy as np
-from hydra import compose, initialize
-from omegaconf import DictConfig
 from rich.progress import track
 
 from config import Config
@@ -101,32 +99,6 @@ def save_features(
     print("Save extracted features to " + feat_file)
 
 
-def get_backing_chord(cfg: Config) -> None:
-    """Download backing file (midi) and chord file (csv)."""
-    g_drive_url = '"https://drive.google.com/uc?export=download&id="'
-    adlib_dir = os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.adlib_dir)
-    os.makedirs(adlib_dir, exist_ok=True)
-
-    backing_url = g_drive_url + cfg.demo.backing_fid
-    backing_file = os.path.join(adlib_dir, cfg.demo.backing_file)
-    chord_url = g_drive_url + cfg.demo.chord_fid
-    chord_file = os.path.join(adlib_dir, cfg.demo.chord_file)
-
-    subprocess.run(
-        "echo -n Download backing file for demo ... ", text=True, shell=True
-    )
-    command = "wget " + backing_url + " -O " + backing_file
-    subprocess.run(command, text=True, shell=True, capture_output=True)
-    print(" done.")
-
-    subprocess.run(
-        "echo -n Download chord file for demo ... ", text=True, shell=True
-    )
-    command = "wget " + chord_url + " -O " + chord_file
-    subprocess.run(command, text=True, shell=True, capture_output=True)
-    print(" done.")
-
-
 @hydra.main(version_base=None, config_name="config")
 def main(cfg: Config) -> None:
     """Perform preprocess."""
@@ -138,9 +110,6 @@ def main(cfg: Config) -> None:
 
     # Save extracted features.
     save_features(cfg, data_all, label_all)
-
-    # Download backing file (midi) and chord file (csv)
-    get_backing_chord(cfg)
 
 
 if __name__ == "__main__":

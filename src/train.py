@@ -1,10 +1,9 @@
-import os
+from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import hydra
 import pytorch_lightning as pl
 import torch
-import torch.nn as nn
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 from pytorch_lightning.loggers import CSVLogger
@@ -21,6 +20,8 @@ class PLModule(pl.LightningModule):
         self.cfg = cfg
         self.model = Seq2SeqMelodyComposer(cfg)
         self.loss_fn = get_loss(cfg, self.model)
+
+        self.save_hyperparameters()
 
     def training_step(
         self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
@@ -54,11 +55,10 @@ def main(cfg: Config) -> None:
     dataloader = get_dataloader(cfg)
     model = PLModule(cfg)
 
-    csv_logger = CSVLogger(
-        f"./data/train/{cfg.exp.name}/logs", name="exp_00100"
-    )
+    output_dir = Path(f"./data/train/{cfg.exp.name}")
+    csv_logger = CSVLogger(str(output_dir / "logs"), name="exp_00100")
     checkpoint_callback = ModelCheckpoint(
-        dirpath=f"./data/train/{cfg.exp.name}/checkpoints",
+        dirpath=str(output_dir / "checkpoints"),
         filename="{epoch}-{train_loss:.4f}",
         monitor="train_loss",
         save_top_k=1,
@@ -82,10 +82,8 @@ def main(cfg: Config) -> None:
     model = PLModule.load_from_checkpoint(
         checkpoint_path=checkpoint_callback.best_model_path, cfg=cfg
     )
-    save_dir = f"data/model/{cfg.exp.name}/"
-    os.makedirs(save_dir, exist_ok=True)
     torch.save(
-        model.model.cpu().state_dict(), os.path.join(save_dir, "state_dict.pt")
+        model.model.cpu().state_dict(), str(output_dir / "state_dict.pt")
     )
 
 
