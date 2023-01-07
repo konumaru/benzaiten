@@ -129,5 +129,9 @@ dmypy.json
 .pyre/
 
 # XML files
-data/*
-!data/.gitkeep
+!data/comp_inputs/.gitkeep
+data/feats/
+data/generated/
+data/hydra_output/
+data/train/
+data/xml/

@@ -125,17 +125,18 @@ class SchedulerConfig:
 class TrainConfig:
     n_epoch: int = 3000
     n_batch: int = 32
-    learning_rate: float = 3e-4
 
-    optimizer: OptimizerConfig = field(
-        default=OptimizerConfig(lr=learning_rate)
-    )
+    optimizer: OptimizerConfig = field(default=OptimizerConfig())
     lr_scheduler: SchedulerConfig = field(default=SchedulerConfig())
 
     use_grad_clip: bool = False  # 勾配クリッピングを使うか否か
     grad_max_norm: float = 1.0  # 勾配クリッピングのしきい値
     use_scheduler: bool = True  # 学習率スケジューリングを使うか否か
-    model_file: str = "lstm_vae.pt"  # 訓練直後のモデルファイル名
+
+
+# ====================
+# Demo Config
+# ====================
 
 
 @dataclass
