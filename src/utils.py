@@ -1,5 +1,4 @@
 import csv
-import os
 from typing import Any, List, Tuple
 
 import mido
@@ -111,7 +110,7 @@ def read_chord_file(
 ) -> List[str]:
     chord_seq = [None] * int(melody_length * n_beats)
 
-    with open(csv_file, encoding="utf-8") as file_handler:
+    with open(csv_file, "r", encoding="utf-8") as file_handler:
         reader = csv.reader(file_handler)
         for row in reader:
             measure_id = int(row[0])

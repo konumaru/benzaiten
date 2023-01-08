@@ -12,7 +12,6 @@ class BenzaitenDataset(Dataset):
     """Build Dataset for training."""
 
     def __init__(self, cfg: Config) -> None:
-        """Initialize class."""
         super().__init__()
 
         self.cfg = cfg
@@ -29,14 +28,6 @@ class BenzaitenDataset(Dataset):
         return len(self.data_all)
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
-        """Fetch items.
-
-        Args:
-            index (int): item index.
-
-        Returns:
-            _type_: _description_
-        """
         return self.data_all[index], self.label_all[index]
 
 
@@ -51,7 +42,7 @@ def get_dataloader(cfg: Config) -> DataLoader:
         batch_size=cfg.training.n_batch,
         shuffle=True,
         drop_last=True,
-        num_workers=2,
+        num_workers=4,
         pin_memory=True,
         worker_init_fn=_worker_init_fn,
     )

@@ -144,8 +144,3 @@ class Seq2SeqMelodyComposer(nn.Module):
         inputs = inputs.repeat(1, seq_len, 1)
         prediction: torch.Tensor = self.decoder(inputs)[0]
         return prediction
-
-
-def get_model(config: Config, device: torch.device) -> Seq2SeqMelodyComposer:
-    model = Seq2SeqMelodyComposer(config)
-    return model

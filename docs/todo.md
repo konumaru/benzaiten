@@ -1,9 +1,9 @@
 # Todo
 
-- [ ] 学習データの追加
 - [ ] 前処理を理解するためにテストを書く
+  - [ ] 生成時に入力してる note_seq の中身がすべて 0 なのかを確認する（backing.midi をつかってる？）
 - [ ] Many to Many の LSTM モデルで学習
-- [ ] music transformer モデルの実装
+- [ ] music transformer モデルの実装, ここまでやりたい
 
 ## 学習データ
 
@@ -38,12 +38,9 @@
   - Tensorflow 製なので実装膨らみそうだから避けたい
   - 一方で学習済みモデルなので使いたい気持ちもある
 
-## 生成
+### モデル改善のアイディア
 
-以下のように実行したら生成されてほしい
-
-```sh
-python generate.py \
-  demo.name=sample1 \
-  exp.name=LSTM,LSTM_batchSize-2,LSTM_hiddenDim-256
-```
+- 扱う seq_len を長くする
+- 学習時にメロディのデータを入力に使用しない
+  - backing.midi はあるからそれは使ってもいいのか
+- 双方向 LSTM にしてみる

@@ -54,7 +54,6 @@ def extract_features(cfg: Config) -> Tuple[np.ndarray, np.ndarray]:
     label_all: List[float] = []
 
     xml_dir = os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.xml_dir)
-    os.makedirs(xml_dir, exist_ok=True)
 
     for xml_file in track(
         glob.glob(xml_dir + "/*.xml"),
