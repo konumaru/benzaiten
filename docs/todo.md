@@ -15,17 +15,6 @@
 - コンペ特有の制約
   - 当日サンプル同様の midi file が配布される
   - path を指定したらそれに切り替わるようにしたい
-- output tree
-  - generated/
-    - {input_backing_filename} # e.g. sample1_backing
-      - exp_name/ # e.g. LSTM, LSTM_batch_size=2,seq_len=1024,
-        MusicTransformer
-        - output.midi
-        - output.wav
-        - piano_roll.png
-        - config.yaml
-      - play_space/
-        - model_name.wav
 
 ## モデル
 
@@ -44,3 +33,9 @@
 - 学習時にメロディのデータを入力に使用しない
   - backing.midi はあるからそれは使ってもいいのか
 - 双方向 LSTM にしてみる
+
+## 入力データへの疑問
+
+- 特定の音が何小節鳴り続けているかを考慮できてない？
+  - music xml の入力を単純に List に Append しているだけに見える
+    - ただし休符は扱えてる？

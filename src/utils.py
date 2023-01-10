@@ -39,8 +39,7 @@ def make_note_and_chord_seq_from_musicxml(
                         int(onset * beat_reso), int(offset * beat_reso + 1)
                     ):
                         note_seq[i] = note  # type: ignore
-
-                if isinstance(note, music21.harmony.ChordSymbol):
+                elif isinstance(note, music21.harmony.ChordSymbol):
                     chord_offset = measure_offset + note.offset
                     for i in range(
                         int(chord_offset * beat_reso),

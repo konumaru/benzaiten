@@ -1,22 +1,115 @@
 import glob
 import os
 import subprocess
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import hydra
 import joblib
 import music21
 import numpy as np
+from music21.chord import Chord
+from music21.note import Note
+from music21.stream.base import Score
 from rich.progress import track
 
 from config import Config
-from utils import (
-    add_rest_nodes,
-    chord_seq_to_chroma,
-    divide_seq,
-    make_note_and_chord_seq_from_musicxml,
-    note_seq_to_onehot,
-)
+from utils import divide_seq
+
+
+class MusicXMLFeature(object):
+    def __init__(
+        self,
+        xml_file: str,
+        key_root: str = "C",
+        num_beats: int = 4,
+        num_parts_of_beat: int = 4,
+        max_measure_num: int = 240,
+        min_note_num: int = 36,
+        max_note_num: int = 84,
+    ) -> None:
+        assert key_root in ["C", "D", "E", "F", "G", "A", "B"]
+
+        self.score = self._get_score(xml_file, key_root)
+        self.num_beats = num_beats
+        self.num_parts_of_beat = num_parts_of_beat
+        self.max_measure_num = max_measure_num
+        self.min_note_num = min_note_num
+        self.max_note_num = max_note_num
+
+    def _get_score(self, xml_file: str, root: str) -> Score:
+        score: Score = music21.converter.parse(
+            xml_file, format="musicxml"
+        )  # type: ignore
+        key = score.analyze("key")
+        interval = music21.interval.Interval(
+            key.tonic, music21.pitch.Pitch(root)  # type: ignore
+        )
+        score.transpose(interval, inPlace=True)
+        return score
+
+    def get_mode(self) -> str:
+        key = self.score.analyze("key")
+        mode = "None" if key is None else str(key.mode)
+        return mode
+
+    def get_note_seq(self) -> List[Union[None, Note]]:
+        note_seq: List[Union[None, Note]] = [None] * int(
+            self.max_measure_num * self.num_beats * self.num_parts_of_beat
+        )
+
+        for measure in self.score.parts[0].getElementsByClass("Measure"):
+            for note in measure.getElementsByClass("Note"):
+                onset = measure.offset + int(note._activeSiteStoredOffset)
+                offset = int(onset + note._duration.quarterLength)
+
+                start_idx = int(onset * self.num_parts_of_beat)
+                end_idx = int(offset * self.num_parts_of_beat) + 1
+                num_item = int(end_idx - start_idx)
+                note_seq[start_idx:end_idx] = [note] * num_item
+
+        return note_seq
+
+    def get_onehot_note_seq(self) -> np.ndarray:
+        note_seq = self.get_note_seq()
+        note_num_seq = [
+            int(n.pitch.midi - self.min_note_num) if n is not None else -1
+            for n in note_seq
+        ]
+        num_note = self.max_note_num - self.min_note_num + 1
+        onehot_note_seq = np.identity(num_note)[note_num_seq]
+        return onehot_note_seq
+
+    def get_chord_seq(self) -> List[Union[None, Chord]]:
+        chord_seq: List[Union[None, Chord]] = [None] * int(
+            self.max_measure_num * self.num_beats * self.num_parts_of_beat
+        )
+
+        for measure in self.score.parts[0].getElementsByClass("Measure"):
+            for note in measure.getElementsByClass("ChordSymbol"):
+                offset = measure.offset + note.offset
+
+                start_idx = int(offset * self.num_parts_of_beat)
+                end_idx = (
+                    int(
+                        (measure.offset + self.num_beats)
+                        * self.num_parts_of_beat
+                    )
+                    + 1
+                )
+                num_item = int(end_idx - start_idx)
+                chord_seq[start_idx:end_idx] = [note] * num_item
+
+        return chord_seq
+
+    def get_onehot_chord_seq(self) -> np.ndarray:
+        chord_seq = self.get_chord_seq()
+        onehot_chord_seq = np.zeros((len(chord_seq), 12))
+        for i, chord in enumerate(chord_seq):
+            if chord is None:
+                continue
+            for note in chord._notes:
+                onehot_chord_seq[i, note.pitch.midi % 12] = 1
+        return onehot_chord_seq
 
 
 def get_music_xml(cfg: Config) -> None:
@@ -54,34 +147,22 @@ def extract_features(cfg: Config) -> Tuple[np.ndarray, np.ndarray]:
     label_all: List[float] = []
 
     xml_dir = os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.xml_dir)
+    for xml_file in track(glob.glob(xml_dir + "/*.xml")):
+        feat = MusicXMLFeature(
+            xml_file,
+            cfg.feature.key_root,
+            num_beats=cfg.feature.n_beats,
+            num_parts_of_beat=cfg.feature.beat_reso,
+            max_measure_num=cfg.feature.total_measures,
+            min_note_num=cfg.feature.notenum_from,
+            max_note_num=cfg.feature.notenum_thru,
+        )
 
-    for xml_file in track(
-        glob.glob(xml_dir + "/*.xml"),
-        description="Extract features from MusixXML: ",
-    ):
-        score = music21.converter.parse(xml_file)
-        key = score.analyze("key")
-        if key.mode == cfg.feature.key_mode:  # type: ignore
-            inter = music21.interval.Interval(
-                key.tonic,  # type: ignore
-                music21.pitch.Pitch(cfg.feature.key_root),
-            )
-            score = score.transpose(inter)
-            note_seq, chord_seq = make_note_and_chord_seq_from_musicxml(
-                score,
-                cfg.feature.total_measures,
-                cfg.feature.n_beats,
-                cfg.feature.beat_reso,
-            )
+        if feat.get_mode() == "major":
+            note_seq = feat.get_onehot_note_seq()
+            chord_seq = feat.get_onehot_chord_seq()
 
-            onehot_seq = note_seq_to_onehot(
-                note_seq,
-                cfg.feature.notenum_thru,
-                cfg.feature.notenum_from,
-            )
-            onehot_seq = add_rest_nodes(onehot_seq)
-            chroma_seq = chord_seq_to_chroma(chord_seq)
-            divide_seq(cfg, onehot_seq, chroma_seq, data_all, label_all)
+            divide_seq(cfg, note_seq, chord_seq, data_all, label_all)
 
     return np.array(data_all), np.array(label_all)
 
@@ -100,13 +181,10 @@ def save_features(
 
 @hydra.main(version_base=None, config_name="config")
 def main(cfg: Config) -> None:
-    """Perform preprocess."""
     # Download Omnibook MusicXML
     get_music_xml(cfg)
-
     # Extract features from MusicXM.
     data_all, label_all = extract_features(cfg)
-
     # Save extracted features.
     save_features(cfg, data_all, label_all)
 
