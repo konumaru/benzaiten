@@ -9,6 +9,7 @@ import music21
 import numpy as np
 from music21.chord import Chord
 from music21.note import Note
+from music21.stream import Measure
 from music21.stream.base import Score
 from rich.progress import track
 
@@ -59,11 +60,12 @@ class MusicXMLFeature(object):
 
         for measure in self.score.parts[0].getElementsByClass("Measure"):
             for note in measure.getElementsByClass("Note"):
-                onset = measure.offset + int(note._activeSiteStoredOffset)
-                offset = int(onset + note._duration.quarterLength)
+                onset = measure.offset + note._activeSiteStoredOffset
+                offset = onset + note._duration.quarterLength
 
                 start_idx = int(onset * self.num_parts_of_beat)
-                end_idx = int(offset * self.num_parts_of_beat) + 1
+                end_idx = int(offset * self.num_parts_of_beat + 1)
+
                 num_item = int(end_idx - start_idx)
                 note_seq[start_idx:end_idx] = [note] * num_item
 

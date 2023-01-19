@@ -49,14 +49,13 @@ class PLModule(pl.LightningModule):
 
 @hydra.main(version_base=None, config_name="config")
 def main(cfg: Config) -> None:
-    """Perform model training."""
-    print(OmegaConf.to_yaml(cfg), flush=True)  # dump configuration
+    print(OmegaConf.to_yaml(cfg), flush=True)
 
     dataloader = get_dataloader(cfg)
     model = PLModule(cfg)
 
     output_dir = Path(f"./data/train/{cfg.exp.name}")
-    csv_logger = CSVLogger(str(output_dir / "logs"), name="exp_00100")
+    csv_logger = CSVLogger(str(output_dir / "logs"))
     checkpoint_callback = ModelCheckpoint(
         dirpath=str(output_dir / "checkpoints"),
         filename="{epoch}-{train_loss:.4f}",
@@ -74,10 +73,6 @@ def main(cfg: Config) -> None:
         amp_backend="native",
     )
     trainer.fit(model=model, train_dataloaders=dataloader)
-
-    print("\n\n")
-    print(checkpoint_callback.best_model_path)
-    print(checkpoint_callback.best_model_score)
 
     model = PLModule.load_from_checkpoint(
         checkpoint_path=checkpoint_callback.best_model_path, cfg=cfg

@@ -8,77 +8,6 @@ import numpy as np
 from config import Config
 
 
-def make_note_and_chord_seq_from_musicxml(
-    score: Any, total_measures: int, n_beats: int, beat_reso: int
-) -> Tuple[List[int], List[int]]:
-    """Generate note column and chord symbol column from MusicXML.
-
-    Args:
-        score (Any): _description_
-        total_measures (int): _description_
-        n_beats (int): _description_
-        beat_reso (int): _description_
-
-    Returns:
-        Tuple[List[int], List[int]]: _description_
-    """
-
-    note_seq = [None] * int(total_measures * n_beats * beat_reso)
-    chord_seq = [None] * int(total_measures * n_beats * beat_reso)
-
-    for element in score.parts[0].elements:
-        if isinstance(element, music21.stream.Measure):  # type: ignore
-            measure_offset = element.offset
-
-            for note in element.notes:
-                if isinstance(note, music21.note.Note):
-                    onset = measure_offset + note._activeSiteStoredOffset  # type: ignore
-                    offset = onset + note._duration.quarterLength  # type: ignore
-
-                    for i in range(
-                        int(onset * beat_reso), int(offset * beat_reso + 1)
-                    ):
-                        note_seq[i] = note  # type: ignore
-                elif isinstance(note, music21.harmony.ChordSymbol):
-                    chord_offset = measure_offset + note.offset
-                    for i in range(
-                        int(chord_offset * beat_reso),
-                        int((measure_offset + n_beats) * beat_reso + 1),
-                    ):
-                        chord_seq[i] = note  # type: ignore
-
-    return note_seq, chord_seq  # type: ignore
-
-
-def note_seq_to_onehot(
-    note_seq: List[int], notenum_thru: int, notenum_from: int
-) -> np.ndarray:
-    """_summary_
-
-    Args:
-        note_seq (_type_): _description_
-        notenum_thru (_type_): _description_
-        notenum_from (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    n_note_width = notenum_thru - notenum_from
-    n_note_seq = len(note_seq)
-    matrix = np.zeros((n_note_seq, n_note_width))
-    for i in range(n_note_seq):
-        if note_seq[i] is not None:
-            matrix[i, note_seq[i].pitch.midi - notenum_from] = 1  # type: ignore
-    return matrix
-
-
-def add_rest_nodes(onehot_seq: np.ndarray) -> np.ndarray:
-    rest = 1 - np.sum(onehot_seq, axis=1)
-    rest = np.expand_dims(rest, 1)
-    return np.concatenate([onehot_seq, rest], axis=1)
-
-
 def extract_seq(
     index: int,
     onehot_seq: np.ndarray,
@@ -115,7 +44,8 @@ def read_chord_file(
             measure_id = int(row[0])
             if measure_id < melody_length:
                 beat_id = int(row[1])
-                chord_seq[measure_id * 4 + beat_id] = music21.harmony.ChordSymbol(  # type: ignore
+                idx = measure_id * 4 + beat_id
+                chord_seq[idx] = music21.harmony.ChordSymbol(  # type: ignore
                     root=row[2], kind=row[3], bass=row[4]
                 )
 
