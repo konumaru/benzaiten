@@ -135,3 +135,5 @@ data/generated/
 data/hydra_output/
 data/train/
 data/xml/
+*.wav
+*.midi

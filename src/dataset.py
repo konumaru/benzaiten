@@ -42,7 +42,7 @@ def get_dataloader(cfg: Config) -> DataLoader:
         batch_size=cfg.training.n_batch,
         shuffle=True,
         drop_last=True,
-        num_workers=4,
+        num_workers=2,
         pin_memory=True,
         worker_init_fn=_worker_init_fn,
     )
