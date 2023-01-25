@@ -1,3 +1,3 @@
-from .cvae import CVAEModel
+from .cvae import CVAEModel, CVAEPLModule
 
-__all__ = ["CVAEModel"]
+__all__ = ["CVAEModel", "CVAEPLModule"]

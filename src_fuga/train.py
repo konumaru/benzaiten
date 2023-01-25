@@ -4,13 +4,13 @@ from typing import Any, Dict, List, Tuple
 import hydra
 import pytorch_lightning as pl
 import torch
+from dataset import get_dataloader
+from factory import get_loss, get_lr_scheduler
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 from pytorch_lightning.loggers import CSVLogger
 
 from config import Config
-from dataset import get_dataloader
-from factory import get_loss, get_lr_scheduler
 from model import Seq2SeqMelodyComposer
 
 

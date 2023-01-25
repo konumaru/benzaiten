@@ -1,7 +1,9 @@
-from typing import Any, Tuple
+from typing import Any, Dict, Sequence, Tuple, Union
 
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
+from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 
 from .base import BaseComposerModel
 
@@ -103,20 +105,20 @@ class CVAEModel(BaseComposerModel):
     def __init__(
         self,
         input_dim: int,
+        condition_dim: int,
         hidden_dim: int,
         latent_dim: int,
-        condition_dim: int,
         num_lstm_layers: int = 2,
         num_fc_layers: int = 2,
         bidirectional: bool = False,
     ) -> None:
         super(CVAEModel, self).__init__()
         self.encoder = Encoder(
-            input_dim,
-            latent_dim,
-            hidden_dim,
-            num_lstm_layers,
-            num_fc_layers,
+            input_dim=input_dim,
+            latent_dim=latent_dim,
+            hidden_dim=hidden_dim,
+            num_lstm_layers=num_lstm_layers,
+            num_fc_layers=num_fc_layers,
             bidirectional=bidirectional,
         )
         self.decoder = Decoder(
@@ -181,3 +183,53 @@ class CVAELoss(nn.Module):
         kld_loss = -0.5 * torch.sum(1.0 + logvar - mu.pow(2) - logvar.exp())
         vae_loss = recons_loss + (self.kld_weight * kld_loss)
         return vae_loss
+
+
+class CVAEPLModule(pl.LightningModule):
+    def __init__(
+        self,
+        input_dim: int = 49,
+        condition_dim: int = 12,
+        hidden_dim: int = 256,
+        latent_dim: int = 128,
+        num_lstm_layers: int = 2,
+        num_fc_layers: int = 2,
+        bidirectional: bool = False,
+    ) -> None:
+        super(CVAEPLModule, self).__init__()
+
+        self.model = CVAEModel(
+            input_dim=input_dim,
+            condition_dim=condition_dim,
+            hidden_dim=hidden_dim,
+            latent_dim=latent_dim,
+            num_lstm_layers=num_lstm_layers,
+            num_fc_layers=num_fc_layers,
+            bidirectional=bidirectional,
+        )
+        self.criterion = CVAELoss()
+
+    def configure_optimizers(self) -> Dict[str, Any]:
+        optimizer = torch.optim.Adam(
+            self.parameters(),
+            lr=3e-4,
+            betas=(0.9, 0.999),
+            eps=1e-08,
+            weight_decay=0,
+        )
+        lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
+            optimizer, milestones=[1000, 1500]
+        )
+        return {"optimizer": optimizer, "lr_scheduler": lr_scheduler}
+
+    def training_step(
+        self,
+        batch: Tuple[torch.Tensor, torch.Tensor, torch.Tensor],
+        batch_idx: int,
+    ) -> torch.Tensor:
+        x, condition, label = batch
+        x_hat, mean, logvar = self.model(x, condition)  # type: ignore
+
+        loss = self.criterion(label, x_hat, mean, logvar)
+        self.log("train_loss", loss, prog_bar=True)
+        return loss  # type: ignore

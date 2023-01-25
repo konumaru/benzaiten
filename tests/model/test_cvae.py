@@ -29,7 +29,12 @@ def test_cvae_model(
 ) -> None:
     note_feat_dim = onehot_note_seq.shape[2]
     chord_feat_dim = chromatic_chord_seq.shape[2]
-    model = CVAEModel(note_feat_dim, 16, 16, chord_feat_dim)
+    model = CVAEModel(
+        input_dim=note_feat_dim,
+        condition_dim=chord_feat_dim,
+        hidden_dim=16,
+        latent_dim=16,
+    )
     x_hat, mean, logvar = model.forward(onehot_note_seq, chromatic_chord_seq)
 
     assert x_hat.permute(0, 2, 1).shape == onehot_note_seq.shape

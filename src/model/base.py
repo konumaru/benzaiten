@@ -2,9 +2,10 @@ from abc import ABCMeta, abstractmethod
 from typing import Tuple
 
 import torch
+import torch.nn as nn
 
 
-class BaseComposerModel(metaclass=ABCMeta):
+class BaseComposerModel(nn.Module, metaclass=ABCMeta):
     @abstractmethod
     def encode(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         mean = torch.empty(1)

@@ -18,7 +18,6 @@
     "esbenp.prettier-vscode",
     "christian-kohler.path-intellisense",
     "vscodevim.vim",
-    "wayou.vscode-todo-highlight",
     "usernamehw.errorlens"
   ],
   "settings": {
