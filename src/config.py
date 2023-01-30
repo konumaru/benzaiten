@@ -21,6 +21,27 @@ hydra_config = {
 }
 
 # ====================
+# Feature Config
+# ====================
+
+
+@dataclass(frozen=True)
+class Feature:
+    # NOTE: FeatureというよりBenzaitenで指定されている値なのでBenzaitenConfigに持たせる
+    total_measures: int = 240  # 学習用MusicXMLを読み込む際の小節数の上限
+    unit_measures: int = 4  # 1回の生成で扱う旋律の長さ
+    beat_reso: int = 4  # 1拍を何個に分割するか（4の場合は16分音符単位）
+    n_beats: int = 4  # 1小節の拍数（今回は4/4なので常に4）
+    notenum_from: int = 36  # 扱う音域の下限（この値を含む）
+    notenum_thru: int = 84  # 扱う音域の上限（この値を含まない）
+    intro_blank_measures: int = 4  # ブランクおよび伴奏の小節数の合計
+    melody_length: int = 8  # 生成するメロディの長さ（小節数）
+    key_root: str = "C"  # 生成するメロディの調のルート（"C" or "A"）
+    key_mode: str = "major"  # 生成するメロディの調のモード（"major" or "minor"）
+    transpose: int = 12  # 生成するメロディにおける移調量
+
+
+# ====================
 # Model Config
 # ====================
 
@@ -29,11 +50,39 @@ hydra_config = {
 class CVAEModelConfig:
     input_dim: int = 49
     condition_dim: int = 12
-    hidden_dim: int = 1024
-    latent_dim: int = 256
+    hidden_dim: int = 128
+    latent_dim: int = 64
     num_lstm_layers: int = 2
-    num_fc_layers: int = 2
+    num_fc_layers: int = 3
     bidirectional: bool = False
+
+
+# @dataclass
+# class VAEModelConfig:
+#     input_dim: int = 49
+#     condition_dim: int = 12
+#     hidden_dim: int = 128
+#     latent_dim: int = 64
+#     num_lstm_layers: int = 2
+#     num_fc_layers: int = 2
+#     bidirectional: bool = False
+
+#     learning_rate: float = 3e-4
+
+
+# ====================
+# Train Config
+# ====================
+
+
+@dataclass
+class TrainConfig:
+    batch_size: int = 32
+
+    num_epoch: int = 2000
+    grad_clip_val: float = 1.0
+
+    learning_rate: float = 3e-4
 
 
 # ====================
@@ -54,8 +103,13 @@ class Config:
     seed: int = 42
     exp: ExpConfig = field(default_factory=ExpConfig)
 
+    feature: Feature = field(default_factory=Feature)
+
     # NTOE: model configs.
     cvae_model: CVAEModelConfig = field(default_factory=CVAEModelConfig)
+    # vae_model: VAEModelConfig = field(default_factory=VAEModelConfig)
+
+    train: TrainConfig = field(default_factory=TrainConfig)
 
 
 # NOTE: No further use of cs.store to use auto-completion.

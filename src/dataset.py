@@ -1,5 +1,6 @@
 from typing import Any, Tuple
 
+import joblib
 import numpy as np
 from torch.utils.data import DataLoader, Dataset
 
@@ -25,16 +26,17 @@ class BenzaitenDataset(Dataset):
         return self.data[index], self.condition[index], self.label[index]
 
 
-def get_dataloader(
-    data: np.ndarray,
-    condition: np.ndarray,
-    label: np.ndarray,
-    batch_size: int = 32,
-) -> DataLoader:
-    dataset = BenzaitenDataset(data, condition, label)
+def get_dataloader() -> DataLoader:
+    features = joblib.load("/workspace/data/feats/benzaiten_feats.pkl")
+    data_all = features["data"]
+    label_all = features["label"]
+
+    note_seq = data_all[:, :, :49]
+    chord_seq = data_all[:, :, -12:]
+    dataset = BenzaitenDataset(note_seq, chord_seq, label_all)
     dataloader = DataLoader(
         dataset,
-        batch_size=batch_size,
+        batch_size=32,
         shuffle=True,
         drop_last=True,
         num_workers=4,

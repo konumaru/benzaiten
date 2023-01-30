@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Tuple
+from typing import Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -26,9 +26,8 @@ class BaseComposerModel(nn.Module, metaclass=ABCMeta):
         latent = torch.empty(1)
         return latent
 
-    @abstractmethod
     def generate(
-        self, x: torch.Tensor, condition: torch.Tensor
+        self, condition: torch.Tensor, x: Union[torch.Tensor, None] = None
     ) -> torch.Tensor:
         x = torch.empty(1)
         return x

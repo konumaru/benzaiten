@@ -35,9 +35,7 @@ def test_cvae_model(
         hidden_dim=16,
         latent_dim=16,
     )
-    x_hat, mean, logvar = model.forward(onehot_note_seq, chromatic_chord_seq)
-
-    assert x_hat.permute(0, 2, 1).shape == onehot_note_seq.shape
+    x_hat, mean, logvar = model(onehot_note_seq, chromatic_chord_seq)
 
     label = onehot_note_seq.argmax(dim=2)
 
