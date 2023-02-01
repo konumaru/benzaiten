@@ -20,6 +20,25 @@ hydra_config = {
     },
 }
 
+
+@dataclass(frozen=True)
+class Benzaiten:
+    root_dir: str = "./data/"
+    xml_dir: str = "xml/"
+    feature_dir: str = "feature/"
+
+    model_dir: str = "model/"
+    train_dir: str = "train/"
+    model_filename: str = "best_model.ckpt"
+
+    competition_dir: str = "competition/"
+    sample_name: str = "sample1"
+    generated_dir: str = "generated/"
+    pianoroll_filename: str = "output.png"
+    midi_filename: str = "output.midi"
+    wav_filename: str = "output.wav"
+
+
 # ====================
 # Feature Config
 # ====================
@@ -50,24 +69,11 @@ class Feature:
 class CVAEModelConfig:
     input_dim: int = 49
     condition_dim: int = 12
-    hidden_dim: int = 128
-    latent_dim: int = 64
+    hidden_dim: int = 1024
+    latent_dim: int = 128
     num_lstm_layers: int = 2
     num_fc_layers: int = 3
     bidirectional: bool = False
-
-
-# @dataclass
-# class VAEModelConfig:
-#     input_dim: int = 49
-#     condition_dim: int = 12
-#     hidden_dim: int = 128
-#     latent_dim: int = 64
-#     num_lstm_layers: int = 2
-#     num_fc_layers: int = 2
-#     bidirectional: bool = False
-
-#     learning_rate: float = 3e-4
 
 
 # ====================
@@ -103,6 +109,7 @@ class Config:
     seed: int = 42
     exp: ExpConfig = field(default_factory=ExpConfig)
 
+    benzaiten: Benzaiten = field(default_factory=Benzaiten)
     feature: Feature = field(default_factory=Feature)
 
     # NTOE: model configs.

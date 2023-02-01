@@ -113,13 +113,13 @@ class MusicXMLFeature(object):
         return onehot_chord_seq
 
 
-def get_music_xml(cfg: Config) -> None:
+def get_music_xml(output_dir: str) -> None:
     subprocess.run(
         "echo -n Download Omnibook MusicXML ...", text=True, shell=True
     )
 
     xml_url = "https://homepages.loria.fr/evincent/omnibook/omnibook_xml.zip"
-    command = "wget " + xml_url
+    command = "wget " + output_dir
     subprocess.run(command, text=True, shell=True, capture_output=True)
 
     zip_file = os.path.basename(xml_url)
@@ -131,7 +131,7 @@ def get_music_xml(cfg: Config) -> None:
 
     xml_dir = os.path.join("/workspace/data", "xml/")
     os.makedirs(xml_dir, exist_ok=True)
-    command = str("mv " + "Omnibook\\ xml/*.xml " + xml_dir)
+    command = str("mv " + "Omnibook\\ xml/*.xml " + output_dir)
     subprocess.run(command, text=True, shell=True)
 
     command = str("rm -rf Omnibook\\ xml")
@@ -169,9 +169,9 @@ def extract_features(cfg: Config) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def save_features(
-    cfg: Config, data_all: np.ndarray, label_all: np.ndarray
+    output_dit: str, data_all: np.ndarray, label_all: np.ndarray
 ) -> None:
-    feat_dir = os.path.join("/workspace/data", "feats/")
+    feat_dir = os.path.join("/workspace/data", output_dit)
     os.makedirs(feat_dir, exist_ok=True)
 
     feat_file = os.path.join(feat_dir, "benzaiten_feats.pkl")
@@ -183,11 +183,11 @@ def save_features(
 @hydra.main(version_base=None, config_name="config")
 def main(cfg: Config) -> None:
     # Download Omnibook MusicXML
-    get_music_xml(cfg)
+    get_music_xml(cfg.benzaiten.xml_dir)
     # Extract features from MusicXM.
     data_all, label_all = extract_features(cfg)
     # Save extracted features.
-    save_features(cfg, data_all, label_all)
+    save_features(cfg.benzaiten.feature_dir, data_all, label_all)
 
 
 if __name__ == "__main__":

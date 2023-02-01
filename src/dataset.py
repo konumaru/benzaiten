@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Tuple
 
 import joblib
 import numpy as np
@@ -22,11 +22,13 @@ class BenzaitenDataset(Dataset):
         """Return dataset size."""
         return len(self.data)
 
-    def __getitem__(self, index: int) -> Tuple[Any, Any, Any]:
+    def __getitem__(
+        self, index: int
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         return self.data[index], self.condition[index], self.label[index]
 
 
-def get_dataloader() -> DataLoader:
+def get_dataloader(batch_size: int) -> DataLoader:
     features = joblib.load("/workspace/data/feats/benzaiten_feats.pkl")
     data_all = features["data"]
     label_all = features["label"]
@@ -36,7 +38,7 @@ def get_dataloader() -> DataLoader:
     dataset = BenzaitenDataset(note_seq, chord_seq, label_all)
     dataloader = DataLoader(
         dataset,
-        batch_size=32,
+        batch_size=batch_size,
         shuffle=True,
         drop_last=True,
         num_workers=4,
