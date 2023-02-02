@@ -141,6 +141,7 @@ class TrainConfig:
 
 @dataclass
 class DemoConfig:
+
     name: str = "sample1"
     input_dir: str = "comp_inputs/"
 

@@ -103,6 +103,11 @@ class ExpConfig:
 
 
 @dataclass
+class GenerateConfig:
+    num_output: int = 5
+
+
+@dataclass
 class Config:
     hydra: DictConfig = OmegaConf.create(hydra_config)
 
@@ -113,10 +118,11 @@ class Config:
     feature: Feature = field(default_factory=Feature)
 
     # NTOE: model configs.
-    cvae_model: CVAEModelConfig = field(default_factory=CVAEModelConfig)
-    # vae_model: VAEModelConfig = field(default_factory=VAEModelConfig)
+    model: CVAEModelConfig = field(default_factory=CVAEModelConfig)
 
     train: TrainConfig = field(default_factory=TrainConfig)
+
+    generate: GenerateConfig = field(default_factory=GenerateConfig)
 
 
 # NOTE: No further use of cs.store to use auto-completion.

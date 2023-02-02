@@ -5,7 +5,6 @@ from typing import List
 
 import hydra
 import pytorch_lightning as pl
-import torch
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 from pytorch_lightning.loggers import CSVLogger
@@ -33,7 +32,7 @@ def main(cfg: Config) -> None:
     )
     callbacks: List[Callback] = [checkpoint_callback]
     # NOTE: model_nameごとに定義を分岐できる
-    model = Chord2Melody(**dict(cfg.cvae_model))  # type: ignore
+    model = Chord2Melody(**dict(cfg.model))  # type: ignore
     trainer = pl.Trainer(
         logger=csv_logger,
         max_epochs=cfg.train.num_epoch,

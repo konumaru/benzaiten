@@ -146,10 +146,11 @@ def main(cfg: Config) -> None:
         checkpoint_path=str(train_output_dir / cfg.benzaiten.model_filename),
         hparams_file=str(train_output_dir / "config.yaml"),
     )
+
+    smpl_name = cfg.benzaiten.sample_name
     competition_dir = Path(
         os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.competition_dir)
     )
-    smpl_name = cfg.benzaiten.sample_name
     output_dir = Path(
         os.path.join(
             cfg.benzaiten.root_dir,
@@ -159,19 +160,27 @@ def main(cfg: Config) -> None:
         )
     )
     output_dir.mkdir(parents=True, exist_ok=True)
-    midi = generate_midi(
-        model,
-        str(competition_dir / smpl_name / f"{smpl_name}_backing.mid"),
-        str(competition_dir / smpl_name / f"{smpl_name}_chord.csv"),
-        str(output_dir / cfg.benzaiten.pianoroll_filename),
-    )
-    midi_filepath = str(output_dir / cfg.benzaiten.midi_filename)
-    midi.save(midi_filepath)
-    fluid_synth = midi2audio.FluidSynth(
-        sound_font="/usr/share/sounds/sf2/FluidR3_GM.sf2"
-    )
-    wav_filepath = str(output_dir / cfg.benzaiten.wav_filename)
-    fluid_synth.midi_to_audio(midi_filepath, wav_filepath)
+    (output_dir / "midi").mkdir(parents=True, exist_ok=True)
+    (output_dir / "wav").mkdir(parents=True, exist_ok=True)
+
+    for i in range(cfg.generate.num_output):
+        midi = generate_midi(
+            model,
+            str(competition_dir / smpl_name / f"{smpl_name}_backing.mid"),
+            str(competition_dir / smpl_name / f"{smpl_name}_chord.csv"),
+            str(output_dir / f"{i:02}_{cfg.benzaiten.pianoroll_filename}"),
+        )
+        midi_filepath = str(
+            output_dir / f"midi/{i:02}_{cfg.benzaiten.midi_filename}"
+        )
+        midi.save(midi_filepath)
+        fluid_synth = midi2audio.FluidSynth(
+            sound_font="/usr/share/sounds/sf2/FluidR3_GM.sf2"
+        )
+        wav_filepath = str(
+            output_dir / f"wav/{i:02}_{cfg.benzaiten.wav_filename}"
+        )
+        fluid_synth.midi_to_audio(midi_filepath, wav_filepath)
 
 
 if __name__ == "__main__":

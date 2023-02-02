@@ -7,7 +7,7 @@ import torch.nn as nn
 from .loss import VAELoss
 
 
-class LSTMEncoder(nn.Module):
+class EncoderLSTM(nn.Module):
     def __init__(
         self,
         input_dim: int,
@@ -17,7 +17,7 @@ class LSTMEncoder(nn.Module):
         num_fc_layers: int = 4,
         bidirectional: bool = False,
     ) -> None:
-        super(LSTMEncoder, self).__init__()
+        super(EncoderLSTM, self).__init__()
         self.hidden_dim = hidden_dim
         self.bidirectional = bidirectional
         self.lstm = nn.LSTM(
@@ -52,7 +52,7 @@ class LSTMEncoder(nn.Module):
         return mean, logvar
 
 
-class LSTMDecoder(nn.Module):
+class DecoderLSTM(nn.Module):
     def __init__(
         self,
         latent_dim: int,
@@ -63,7 +63,7 @@ class LSTMDecoder(nn.Module):
         num_fc_layers: int = 4,
         bidirectional: bool = False,
     ) -> None:
-        super(LSTMDecoder, self).__init__()
+        super(DecoderLSTM, self).__init__()
         self.reverse_latent = nn.Linear(latent_dim, hidden_dim)
         self.fc_layers = nn.ModuleList([])
         self.fc_layers += [
@@ -114,7 +114,7 @@ class Chord2Melody(pl.LightningModule):
         self.save_hyperparameters()
 
         self.criterion = VAELoss()
-        self.encoder = LSTMEncoder(
+        self.encoder = EncoderLSTM(
             input_dim,
             latent_dim,
             hidden_dim,
@@ -122,7 +122,7 @@ class Chord2Melody(pl.LightningModule):
             num_fc_layers,
             bidirectional=bidirectional,
         )
-        self.decoder = LSTMDecoder(
+        self.decoder = DecoderLSTM(
             latent_dim=latent_dim,
             condition_dim=condition_dim,
             hidden_dim=hidden_dim,
@@ -135,6 +135,7 @@ class Chord2Melody(pl.LightningModule):
     def reparameterization(
         self, mean: torch.Tensor, logvar: torch.Tensor
     ) -> torch.Tensor:
+        # TODO: この処理はLSTMEncoder内に持っていく
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         latent = mean + eps * std
