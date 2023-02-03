@@ -2422,6 +2422,13 @@ files = [
     {file = "Pillow-9.4.0-1-cp39-cp39-macosx_10_10_x86_64.whl", hash = "sha256:b8c2f6eb0df979ee99433d8b3f6d193d9590f735cf12274c108bd954e30ca858"},
     {file = "Pillow-9.4.0-1-pp38-pypy38_pp73-macosx_10_10_x86_64.whl", hash = "sha256:b70756ec9417c34e097f987b4d8c510975216ad26ba6e57ccb53bc758f490dab"},
     {file = "Pillow-9.4.0-1-pp39-pypy39_pp73-macosx_10_10_x86_64.whl", hash = "sha256:43521ce2c4b865d385e78579a082b6ad1166ebed2b1a2293c3be1d68dd7ca3b9"},
+    {file = "Pillow-9.4.0-2-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:9d9a62576b68cd90f7075876f4e8444487db5eeea0e4df3ba298ee38a8d067b0"},
+    {file = "Pillow-9.4.0-2-cp311-cp311-macosx_10_10_x86_64.whl", hash = "sha256:87708d78a14d56a990fbf4f9cb350b7d89ee8988705e58e39bdf4d82c149210f"},
+    {file = "Pillow-9.4.0-2-cp37-cp37m-macosx_10_10_x86_64.whl", hash = "sha256:8a2b5874d17e72dfb80d917213abd55d7e1ed2479f38f001f264f7ce7bae757c"},
+    {file = "Pillow-9.4.0-2-cp38-cp38-macosx_10_10_x86_64.whl", hash = "sha256:83125753a60cfc8c412de5896d10a0a405e0bd88d0470ad82e0869ddf0cb3848"},
+    {file = "Pillow-9.4.0-2-cp39-cp39-macosx_10_10_x86_64.whl", hash = "sha256:9e5f94742033898bfe84c93c831a6f552bb629448d4072dd312306bab3bd96f1"},
+    {file = "Pillow-9.4.0-2-pp38-pypy38_pp73-macosx_10_10_x86_64.whl", hash = "sha256:013016af6b3a12a2f40b704677f8b51f72cb007dac785a9933d5c86a72a7fe33"},
+    {file = "Pillow-9.4.0-2-pp39-pypy39_pp73-macosx_10_10_x86_64.whl", hash = "sha256:99d92d148dd03fd19d16175b6d355cc1b01faf80dae93c6c3eb4163709edc0a9"},
     {file = "Pillow-9.4.0-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:2968c58feca624bb6c8502f9564dd187d0e1389964898f5e9e1fbc8533169157"},
     {file = "Pillow-9.4.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:c5c1362c14aee73f50143d74389b2c158707b4abce2cb055b7ad37ce60738d47"},
     {file = "Pillow-9.4.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bd752c5ff1b4a870b7661234694f24b1d2b9076b8bf337321a814c612665f343"},
@@ -2534,6 +2541,22 @@ files = [
 [package.extras]
 dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
+
+[[package]]
+name = "pretty-midi"
+version = "0.2.9"
+description = "Functions and classes for handling MIDI data conveniently."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pretty_midi-0.2.9.tar.gz", hash = "sha256:f6a249cb843441e1cb78c4c0a1290948d6f56df7486f7974e20d5c80486dc99e"},
+]
+
+[package.dependencies]
+mido = ">=1.1.16"
+numpy = ">=1.7.0"
+six = "*"
 
 [[package]]
 name = "prometheus-client"
@@ -2730,6 +2753,27 @@ files = [
 
 [package.extras]
 diagrams = ["jinja2", "railroad-diagrams"]
+
+[[package]]
+name = "pypianoroll"
+version = "1.0.4"
+description = "A toolkit for working with piano rolls"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "pypianoroll-1.0.4-py3-none-any.whl", hash = "sha256:39bf5814567ea5a0679e7706e6f4fbffa17be89cadd54b27e61aa9f3574bb793"},
+    {file = "pypianoroll-1.0.4.tar.gz", hash = "sha256:8708783afc88806b1259628ed9e32597c448a0f9c2b30b7a6ec4399682eba46f"},
+]
+
+[package.dependencies]
+matplotlib = ">=1.5"
+numpy = ">=1.12.0"
+pretty-midi = ">=0.2.8"
+scipy = ">=1.0.0"
+
+[package.extras]
+test = ["pytest (>=6.0)", "pytest-cov (>=2.0)"]
 
 [[package]]
 name = "pyproject-flake8"
@@ -3693,4 +3737,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "3.8.16"
-content-hash = "bc4f5010216cce319b3c2882208ef958706838079a60ad778935c35330475c25"
+content-hash = "7d886f6e56847fbe269104e261bdf790a1361bd105d5265bdfd22e095c9bb68a"

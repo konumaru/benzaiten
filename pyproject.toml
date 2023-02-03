@@ -19,6 +19,8 @@ music21 = "^8.1.0"
 rich = "^12.6.0"
 jupyterlab = "^3.5.2"
 pytorch-lightning = "^1.8.6"
+pypianoroll = "^1.0.4"
+pretty-midi = "^0.2.9"
 
 
 [tool.poetry.group.dev.dependencies]

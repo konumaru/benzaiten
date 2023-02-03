@@ -22,16 +22,23 @@ from utils import (
     read_chord_file,
 )
 
+# TODO:
+# 複数プロットを１つにまとめる
+# sample2でも実行してみる
+# ダイアトニックに収める後処理を加える
+
 
 @torch.no_grad()
-def generate_melody(
-    model: Chord2Melody, chroma_vec: np.ndarray, pianoroll_filepath: str
-) -> np.ndarray:
-    piano_roll = make_empty_pianoroll(chroma_vec.shape[0], 84, 36)
+def generate_pianoroll(model: Chord2Melody, chord_filepath: str) -> np.ndarray:
+    chord_prog = read_chord_file(chord_filepath, 8, 4)
+    chord_seq = make_chord_seq(chord_prog, 4, 4, 4)
+    chroma_vec = chord_seq_to_chroma(chord_seq)
+
+    pianoroll = make_empty_pianoroll(chroma_vec.shape[0], 84, 36)
     beat_width = 4 * 4
     for i in range(0, 8, 4):
         onehot_vectors, chord_vectors = extract_seq(
-            i, piano_roll, chroma_vec, 4, beat_width
+            i, pianoroll, chroma_vec, 4, beat_width
         )
         feature_np, _ = calc_xy(onehot_vectors, chord_vectors)
         feature = torch.from_numpy(feature_np).float()
@@ -48,7 +55,7 @@ def generate_melody(
         else:
             chord_prog = feature[:, :, -12:]
             gen_melody = torch.from_numpy(
-                piano_roll.astype(np.float32)
+                pianoroll.astype(np.float32)
             ).unsqueeze(0)
             y_new, _, _ = model(gen_melody, chord_prog)
 
@@ -56,22 +63,29 @@ def generate_melody(
         y_new = y_new[0].T
 
         index_from = i * 4 * 4
-        piano_roll[index_from : index_from + y_new.shape[1], :] = y_new.T
+        pianoroll[index_from : index_from + y_new.shape[1], :] = y_new.T
 
-    plt.matshow(np.transpose(piano_roll))
-    plt.savefig(pianoroll_filepath)
-    return piano_roll
+    return pianoroll
+
+
+def plot_pianoroll(save_filepath: str, pianoroll: np.ndarray) -> None:
+    plt.matshow(np.transpose(pianoroll))
+    plt.savefig(save_filepath)
 
 
 def make_midi(
-    backing_file: str, notenums: List[Any], durations: List[int]
-) -> mido.MidiFile:
+    save_filepath: str, backing_filepath: str, pianoroll: np.ndarray
+) -> None:
+    notenums = calc_notenums_from_pianoroll(pianoroll, 36)
+    notenums, durations = calc_durations(notenums)
+
+    # NOTE: make midi.
     beat_reso = 4
     n_beats = 4
     transpose = 12
     intro_blank_measures = 4
 
-    midi = mido.MidiFile(backing_file)
+    midi = mido.MidiFile(backing_filepath)
     track = mido.MidiTrack()
     midi.tracks.append(track)
 
@@ -108,31 +122,14 @@ def make_midi(
             )
             var["prev_tick"] = var["cur_tick"]
 
-    return midi
+    midi.save(save_filepath)
 
 
-def generate_midi(
-    model: Chord2Melody,
-    backing_file: str,
-    chord_file: str,
-    pianoroll_filepath: str,
-) -> mido.MidiFile:
-    """Synthesize melody with a trained model.
-    Args:
-        chord_file: a file of chord sequence (csv)
-    Returns:
-        midi: generated midi data
-    """
-    # NOTE: Generate piano_roll with pretrained model.
-    chord_prog = read_chord_file(chord_file, 8, 4)
-    chord_seq = make_chord_seq(chord_prog, 4, 4, 4)
-    chroma_vec = chord_seq_to_chroma(chord_seq)
-    piano_roll = generate_melody(model, chroma_vec, pianoroll_filepath)
-
-    notenums = calc_notenums_from_pianoroll(piano_roll, 36)
-    notenums, durations = calc_durations(notenums)
-    midi = make_midi(backing_file, notenums, durations)
-    return midi
+def make_wav(save_filepath: str, midi_filepath) -> None:
+    fluid_synth = midi2audio.FluidSynth(
+        sound_font="/usr/share/sounds/sf2/FluidR3_GM.sf2"
+    )
+    fluid_synth.midi_to_audio(midi_filepath, save_filepath)
 
 
 @hydra.main(version_base=None, config_name="config")
@@ -163,24 +160,25 @@ def main(cfg: Config) -> None:
     (output_dir / "midi").mkdir(parents=True, exist_ok=True)
     (output_dir / "wav").mkdir(parents=True, exist_ok=True)
 
-    for i in range(cfg.generate.num_output):
-        midi = generate_midi(
-            model,
-            str(competition_dir / smpl_name / f"{smpl_name}_backing.mid"),
-            str(competition_dir / smpl_name / f"{smpl_name}_chord.csv"),
-            str(output_dir / f"{i:02}_{cfg.benzaiten.pianoroll_filename}"),
-        )
-        midi_filepath = str(
-            output_dir / f"midi/{i:02}_{cfg.benzaiten.midi_filename}"
-        )
-        midi.save(midi_filepath)
-        fluid_synth = midi2audio.FluidSynth(
-            sound_font="/usr/share/sounds/sf2/FluidR3_GM.sf2"
-        )
-        wav_filepath = str(
-            output_dir / f"wav/{i:02}_{cfg.benzaiten.wav_filename}"
-        )
-        fluid_synth.midi_to_audio(midi_filepath, wav_filepath)
+    pianoroll = generate_pianoroll(
+        model,
+        str(competition_dir / smpl_name / f"{smpl_name}_chord.csv"),
+    )
+    plot_pianoroll(
+        str(output_dir / cfg.benzaiten.pianoroll_filename),
+        pianoroll,
+    )
+
+    midi_filepath = str(output_dir / f"midi/{cfg.benzaiten.midi_filename}")
+    make_midi(
+        midi_filepath,
+        str(competition_dir / smpl_name / f"{smpl_name}_backing.mid"),
+        pianoroll,
+    )
+    make_wav(
+        save_filepath=str(output_dir / f"wav/{cfg.benzaiten.wav_filename}"),
+        midi_filepath=midi_filepath,
+    )
 
 
 if __name__ == "__main__":
