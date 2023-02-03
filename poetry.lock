@@ -2543,22 +2543,6 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
-name = "pretty-midi"
-version = "0.2.9"
-description = "Functions and classes for handling MIDI data conveniently."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "pretty_midi-0.2.9.tar.gz", hash = "sha256:f6a249cb843441e1cb78c4c0a1290948d6f56df7486f7974e20d5c80486dc99e"},
-]
-
-[package.dependencies]
-mido = ">=1.1.16"
-numpy = ">=1.7.0"
-six = "*"
-
-[[package]]
 name = "prometheus-client"
 version = "0.15.0"
 description = "Python client for the Prometheus monitoring system."
@@ -2753,27 +2737,6 @@ files = [
 
 [package.extras]
 diagrams = ["jinja2", "railroad-diagrams"]
-
-[[package]]
-name = "pypianoroll"
-version = "1.0.4"
-description = "A toolkit for working with piano rolls"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pypianoroll-1.0.4-py3-none-any.whl", hash = "sha256:39bf5814567ea5a0679e7706e6f4fbffa17be89cadd54b27e61aa9f3574bb793"},
-    {file = "pypianoroll-1.0.4.tar.gz", hash = "sha256:8708783afc88806b1259628ed9e32597c448a0f9c2b30b7a6ec4399682eba46f"},
-]
-
-[package.dependencies]
-matplotlib = ">=1.5"
-numpy = ">=1.12.0"
-pretty-midi = ">=0.2.8"
-scipy = ">=1.0.0"
-
-[package.extras]
-test = ["pytest (>=6.0)", "pytest-cov (>=2.0)"]
 
 [[package]]
 name = "pyproject-flake8"
@@ -3737,4 +3700,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "3.8.16"
-content-hash = "7d886f6e56847fbe269104e261bdf790a1361bd105d5265bdfd22e095c9bb68a"
+content-hash = "bc4f5010216cce319b3c2882208ef958706838079a60ad778935c35330475c25"

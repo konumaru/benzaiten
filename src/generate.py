@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Any, List
+from typing import List
 
 import hydra
 import matplotlib.pyplot as plt
@@ -21,11 +21,6 @@ from utils import (
     make_empty_pianoroll,
     read_chord_file,
 )
-
-# TODO:
-# 複数プロットを１つにまとめる
-# sample2でも実行してみる
-# ダイアトニックに収める後処理を加える
 
 
 @torch.no_grad()
@@ -69,7 +64,31 @@ def generate_pianoroll(model: Chord2Melody, chord_filepath: str) -> np.ndarray:
 
 
 def plot_pianoroll(save_filepath: str, pianoroll: np.ndarray) -> None:
-    plt.matshow(np.transpose(pianoroll))
+    fig = plt.figure(figsize=(6, 3))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_title("Generated Melody.")
+    ax.matshow(pianoroll.T)
+    ax.set_xlabel("time")
+    ax.set_ylabel("pitch")
+    ax.invert_yaxis()
+    fig.savefig(save_filepath)
+
+
+def plot_all_pianoroll(
+    save_filepath: str, pianorolls: List[np.ndarray]
+) -> None:
+    num_plot = len(pianorolls)
+    fig, axes = plt.subplots(num_plot, 1, figsize=(6, num_plot * 3))
+
+    for i, ax in enumerate(axes):
+        ax.set_title(f"Molody {i}")
+        ax.matshow(np.transpose(pianorolls[i]))
+        ax.set_xlabel("time")
+        ax.set_ylabel("pitch")
+        ax.invert_yaxis()
+
+    fig.suptitle("Generateed Melodies.")
+    fig.tight_layout()
     plt.savefig(save_filepath)
 
 
@@ -125,7 +144,7 @@ def make_midi(
     midi.save(save_filepath)
 
 
-def make_wav(save_filepath: str, midi_filepath) -> None:
+def make_wav(save_filepath: str, midi_filepath: str) -> None:
     fluid_synth = midi2audio.FluidSynth(
         sound_font="/usr/share/sounds/sf2/FluidR3_GM.sf2"
     )
@@ -144,7 +163,7 @@ def main(cfg: Config) -> None:
         hparams_file=str(train_output_dir / "config.yaml"),
     )
 
-    smpl_name = cfg.benzaiten.sample_name
+    smpl_name = cfg.sample_name
     competition_dir = Path(
         os.path.join(cfg.benzaiten.root_dir, cfg.benzaiten.competition_dir)
     )
@@ -152,33 +171,46 @@ def main(cfg: Config) -> None:
         os.path.join(
             cfg.benzaiten.root_dir,
             cfg.benzaiten.generated_dir,
-            cfg.benzaiten.sample_name,
+            cfg.sample_name,
             cfg.exp.name,
         )
     )
     output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "pianoroll").mkdir(parents=True, exist_ok=True)
     (output_dir / "midi").mkdir(parents=True, exist_ok=True)
     (output_dir / "wav").mkdir(parents=True, exist_ok=True)
 
-    pianoroll = generate_pianoroll(
-        model,
-        str(competition_dir / smpl_name / f"{smpl_name}_chord.csv"),
-    )
-    plot_pianoroll(
-        str(output_dir / cfg.benzaiten.pianoroll_filename),
-        pianoroll,
-    )
+    pianorolls = []
+    for i in range(cfg.generate.num_output):
+        pianoroll = generate_pianoroll(
+            model,
+            str(competition_dir / smpl_name / f"{smpl_name}_chord.csv"),
+        )
+        pianorolls.append(pianoroll)
+        plot_pianoroll(
+            str(
+                output_dir
+                / f"pianoroll/{i}_{cfg.benzaiten.pianoroll_filename}"
+            ),
+            pianoroll,
+        )
 
-    midi_filepath = str(output_dir / f"midi/{cfg.benzaiten.midi_filename}")
-    make_midi(
-        midi_filepath,
-        str(competition_dir / smpl_name / f"{smpl_name}_backing.mid"),
-        pianoroll,
-    )
-    make_wav(
-        save_filepath=str(output_dir / f"wav/{cfg.benzaiten.wav_filename}"),
-        midi_filepath=midi_filepath,
-    )
+        midi_filepath = str(
+            output_dir / f"midi/{i}_{cfg.benzaiten.midi_filename}"
+        )
+        make_midi(
+            midi_filepath,
+            str(competition_dir / smpl_name / f"{smpl_name}_backing.mid"),
+            pianoroll,
+        )
+        make_wav(
+            save_filepath=str(
+                output_dir / f"wav/{i}_{cfg.benzaiten.wav_filename}"
+            ),
+            midi_filepath=midi_filepath,
+        )
+
+    plot_all_pianoroll(str(output_dir / "all_pianoroll.png"), pianorolls)
 
 
 if __name__ == "__main__":

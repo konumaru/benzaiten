@@ -32,7 +32,6 @@ class Benzaiten:
     model_filename: str = "best_model.ckpt"
 
     competition_dir: str = "competition/"
-    sample_name: str = "sample1"
     generated_dir: str = "generated/"
     pianoroll_filename: str = "output.png"
     midi_filename: str = "output.midi"
@@ -122,6 +121,7 @@ class Config:
 
     train: TrainConfig = field(default_factory=TrainConfig)
 
+    sample_name: str = "sample1"
     generate: GenerateConfig = field(default_factory=GenerateConfig)
 
 
