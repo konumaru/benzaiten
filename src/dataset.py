@@ -29,7 +29,7 @@ class BenzaitenDataset(Dataset):
 
 
 def get_dataloader(batch_size: int) -> DataLoader:
-    features = joblib.load("/workspace/data/feats/benzaiten_feats.pkl")
+    features = joblib.load("/workspace/data/feature/benzaiten_feats.pkl")
     data_all = features["data"]
     label_all = features["label"]
 

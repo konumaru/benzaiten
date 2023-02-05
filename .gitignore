@@ -130,7 +130,7 @@ dmypy.json
 
 # XML files
 !data/comp_inputs/.gitkeep
-data/feats/
+data/feature/
 data/generated/
 data/hydra_output/
 data/train/

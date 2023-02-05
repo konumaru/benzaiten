@@ -1,9 +1,7 @@
 import os
 from pathlib import Path
-from typing import List
 
 import hydra
-import matplotlib.pyplot as plt
 import midi2audio
 import mido
 import numpy as np
@@ -21,6 +19,7 @@ from utils import (
     make_empty_pianoroll,
     read_chord_file,
 )
+from utils.visualize import plot_pianoroll, plot_pianorolls
 
 
 @torch.no_grad()
@@ -61,35 +60,6 @@ def generate_pianoroll(model: Chord2Melody, chord_filepath: str) -> np.ndarray:
         pianoroll[index_from : index_from + y_new.shape[1], :] = y_new.T
 
     return pianoroll
-
-
-def plot_pianoroll(save_filepath: str, pianoroll: np.ndarray) -> None:
-    fig = plt.figure(figsize=(6, 3))
-    ax = fig.add_subplot(1, 1, 1)
-    ax.set_title("Generated Melody.")
-    ax.matshow(pianoroll.T)
-    ax.set_xlabel("time")
-    ax.set_ylabel("pitch")
-    ax.invert_yaxis()
-    fig.savefig(save_filepath)
-
-
-def plot_all_pianoroll(
-    save_filepath: str, pianorolls: List[np.ndarray]
-) -> None:
-    num_plot = len(pianorolls)
-    fig, axes = plt.subplots(num_plot, 1, figsize=(6, num_plot * 3))
-
-    for i, ax in enumerate(axes):
-        ax.set_title(f"Molody {i}")
-        ax.matshow(np.transpose(pianorolls[i]))
-        ax.set_xlabel("time")
-        ax.set_ylabel("pitch")
-        ax.invert_yaxis()
-
-    fig.suptitle("Generateed Melodies.")
-    fig.tight_layout()
-    plt.savefig(save_filepath)
 
 
 def make_midi(
@@ -210,7 +180,7 @@ def main(cfg: Config) -> None:
             midi_filepath=midi_filepath,
         )
 
-    plot_all_pianoroll(str(output_dir / "all_pianoroll.png"), pianorolls)
+    plot_pianorolls(str(output_dir / "all_pianoroll.png"), pianorolls)
 
 
 if __name__ == "__main__":
