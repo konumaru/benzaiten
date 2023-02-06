@@ -162,21 +162,20 @@ def calc_xy(
     return data, label
 
 
-def divide_seq(
-    cfg: Config,
-    onehot_seq: np.ndarray,
-    chroma_seq: np.ndarray,
-    data_all: List,
-    label_all: List,
-) -> None:
-    total_measures = cfg.feature.total_measures
-    unit_measures = cfg.feature.unit_measures
-    beat_width = cfg.feature.n_beats * cfg.feature.beat_reso
-    for i in range(0, total_measures, unit_measures):
-        onehot_vector, chord_vector = extract_seq(
-            i, onehot_seq, chroma_seq, unit_measures, beat_width
-        )
-        if np.any(onehot_vector[:, 0:-1] != 0):
-            data, label = calc_xy(onehot_vector, chord_vector)
-            data_all.append(data)
-            label_all.append(label)
+def make_sequence(
+    data: np.ndarray,
+    max_seq_len: int,
+    drop_last: bool = True,
+    pad_value: float = 0.0,
+) -> np.ndarray:
+    q, mod = divmod(len(data), max_seq_len)
+    if drop_last or mod == 0:
+        end_idx = len(data) - mod
+        sequence = data[:end_idx]
+    else:
+        num_pad = max_seq_len - mod
+        q = q + 1
+        sequence = np.concatenate((data, np.repeat(pad_value, num_pad)))
+
+    sequence = np.vstack(np.split(sequence, q))
+    return sequence

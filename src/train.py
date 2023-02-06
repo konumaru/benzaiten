@@ -1,7 +1,7 @@
 import os
 import shutil
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 import hydra
 import pytorch_lightning as pl
@@ -11,7 +11,14 @@ from pytorch_lightning.loggers import CSVLogger
 
 from config import Config
 from dataset import get_dataloader
-from model.cvae import Chord2Melody
+from model import EmbeddedLstmVAE, OnehotLstmVAE
+
+
+def get_model(cfg: Config) -> Union[OnehotLstmVAE, EmbeddedLstmVAE]:
+    if cfg.exp.name == "onhot":
+        return OnehotLstmVAE(**dict(cfg.onehot_model))  # type: ignore
+    else:
+        return OnehotLstmVAE(**dict(cfg.onehot_model))  # type: ignore
 
 
 @hydra.main(version_base=None, config_name="config")
@@ -31,8 +38,7 @@ def main(cfg: Config) -> None:
         save_top_k=1,
     )
     callbacks: List[Callback] = [checkpoint_callback]
-    # NOTE: model_nameごとに定義を分岐できる
-    model = Chord2Melody(**dict(cfg.model))  # type: ignore
+    model = get_model(cfg)
     trainer = pl.Trainer(
         logger=csv_logger,
         max_epochs=cfg.train.num_epoch,

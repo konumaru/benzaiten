@@ -97,7 +97,7 @@ class DecoderLSTM(nn.Module):
         return x_hat  # type: ignore
 
 
-class Chord2Melody(pl.LightningModule):
+class OnehotLstmVAE(pl.LightningModule):
     """CVAE model to generate melody from chord progression."""
 
     def __init__(
@@ -110,7 +110,7 @@ class Chord2Melody(pl.LightningModule):
         num_fc_layers: int = 2,
         bidirectional: bool = False,
     ) -> None:
-        super(Chord2Melody, self).__init__()
+        super(OnehotLstmVAE, self).__init__()
         self.save_hyperparameters()
 
         self.criterion = VAELoss()
@@ -169,7 +169,7 @@ class Chord2Melody(pl.LightningModule):
 
         x_hat = x_hat.permute(0, 2, 1)
         loss: torch.Tensor = self.criterion(label, x_hat, mean, logvar)
-        self.log("train_loss", loss, prog_bar=True)
+        self.log("train_loss", value=loss, prog_bar=True)
         return loss
 
     def configure_optimizers(self) -> Dict[str, Any]:

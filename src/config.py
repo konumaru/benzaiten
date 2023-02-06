@@ -47,7 +47,7 @@ class Benzaiten:
 class Feature:
     # NOTE: FeatureというよりBenzaitenで指定されている値なのでBenzaitenConfigに持たせる
     total_measures: int = 240  # 学習用MusicXMLを読み込む際の小節数の上限
-    unit_measures: int = 4  # 1回の生成で扱う旋律の長さ
+    unit_meseq_labelasures: int = 4  # 1回の生成で扱う旋律の長さ
     beat_reso: int = 4  # 1拍を何個に分割するか（4の場合は16分音符単位）
     n_beats: int = 4  # 1小節の拍数（今回は4/4なので常に4）
     notenum_from: int = 36  # 扱う音域の下限（この値を含む）
@@ -65,7 +65,7 @@ class Feature:
 
 
 @dataclass
-class CVAEModelConfig:
+class OnehotLstmVAEConfig:
     input_dim: int = 49
     condition_dim: int = 12
     hidden_dim: int = 1024
@@ -73,6 +73,11 @@ class CVAEModelConfig:
     num_lstm_layers: int = 2
     num_fc_layers: int = 3
     bidirectional: bool = False
+
+
+@dataclass
+class EmbeddedLstmVAEConfig:
+    embedding_dim: int = 64
 
 
 # ====================
@@ -117,10 +122,17 @@ class Config:
     feature: Feature = field(default_factory=Feature)
 
     # NTOE: model configs.
-    model: CVAEModelConfig = field(default_factory=CVAEModelConfig)
+    onehot_model: OnehotLstmVAEConfig = field(
+        default_factory=OnehotLstmVAEConfig
+    )
+    embedded_model: EmbeddedLstmVAEConfig = field(
+        default_factory=EmbeddedLstmVAEConfig
+    )
 
+    # NTOE: train config.
     train: TrainConfig = field(default_factory=TrainConfig)
 
+    # NTOE: generate configs.
     sample_name: str = "sample1"
     generate: GenerateConfig = field(default_factory=GenerateConfig)
 

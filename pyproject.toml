@@ -19,6 +19,7 @@ music21 = "^8.1.0"
 rich = "^12.6.0"
 jupyterlab = "^3.5.2"
 pytorch-lightning = "^1.8.6"
+nptyping = "^2.4.1"
 
 
 [tool.poetry.group.dev.dependencies]

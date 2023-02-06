@@ -2210,6 +2210,29 @@ jupyter-server = ">=1.8,<3"
 test = ["pytest", "pytest-console-scripts", "pytest-tornasync"]
 
 [[package]]
+name = "nptyping"
+version = "2.4.1"
+description = "Type hints for NumPy."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "nptyping-2.4.1-py3-none-any.whl", hash = "sha256:23e8164b1e2c55e872f392ca7516b9b1b0cb400b03b70accaa63998b4106b0b3"},
+    {file = "nptyping-2.4.1.tar.gz", hash = "sha256:57ba684ee5fc5eb681ee04270ee94adb879e4372ce6b640defa08ace8e1df295"},
+]
+
+[package.dependencies]
+numpy = {version = ">=1.20.0,<2.0.0", markers = "python_version >= \"3.8\""}
+typing-extensions = {version = ">=4.0.0,<5.0.0", markers = "python_version < \"3.10\""}
+
+[package.extras]
+build = ["invoke (>=1.6.0)", "pip-tools (>=6.5.0)"]
+complete = ["pandas", "pandas-stubs-fork"]
+dev = ["autoflake", "beartype (<0.10.0)", "beartype (>=0.10.0)", "black", "codecov (>=2.1.0)", "coverage", "feedparser", "invoke (>=1.6.0)", "isort", "mypy", "pandas", "pandas-stubs-fork", "pip-tools (>=6.5.0)", "pylint", "pyright", "setuptools", "typeguard", "wheel"]
+pandas = ["pandas", "pandas-stubs-fork"]
+qa = ["autoflake", "beartype (<0.10.0)", "beartype (>=0.10.0)", "black", "codecov (>=2.1.0)", "coverage", "feedparser", "isort", "mypy", "pylint", "pyright", "setuptools", "typeguard", "wheel"]
+
+[[package]]
 name = "numpy"
 version = "1.24.1"
 description = "Fundamental package for array computing in Python"
@@ -3700,4 +3723,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "3.8.16"
-content-hash = "bc4f5010216cce319b3c2882208ef958706838079a60ad778935c35330475c25"
+content-hash = "876b3e83aba813c11aac63adb6b07762c27342d8df3bdd0771190915bc28483c"

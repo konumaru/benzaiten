@@ -13,7 +13,27 @@ from music21.stream.base import Score
 from rich.progress import track
 
 from config import Config
-from utils import divide_seq
+from utils import calc_xy, extract_seq
+
+
+def divide_seq(
+    cfg: Config,
+    onehot_seq: np.ndarray,
+    chroma_seq: np.ndarray,
+    data_all: List,
+    label_all: List,
+) -> None:
+    total_measures = cfg.feature.total_measures
+    unit_measures = cfg.feature.unit_measures
+    beat_width = cfg.feature.n_beats * cfg.feature.beat_reso
+    for i in range(0, total_measures, unit_measures):
+        onehot_vector, chord_vector = extract_seq(
+            i, onehot_seq, chroma_seq, unit_measures, beat_width
+        )
+        if np.any(onehot_vector[:, 0:-1] != 0):
+            data, label = calc_xy(onehot_vector, chord_vector)
+            data_all.append(data)
+            label_all.append(label)
 
 
 class MusicXMLFeature(object):
@@ -79,6 +99,23 @@ class MusicXMLFeature(object):
         num_note = self.max_note_num - self.min_note_num + 1
         onehot_note_seq = np.identity(num_note)[note_num_seq]
         return onehot_note_seq
+
+    def get_seq_notenum(self) -> np.ndarray:
+        seq_note = self.get_note_seq()
+        seq_notenum = np.array(
+            [
+                int(n.pitch.midi) - self.min_note_num + 1
+                if n is not None
+                else 0
+                for n in seq_note
+            ]
+        )
+        return seq_notenum
+
+    def get_seq_label(self) -> np.ndarray:
+        seq_notenum_onehot = self.get_onehot_note_seq()
+        seq_label = seq_notenum_onehot.argmax(axis=1)
+        return seq_label
 
     def get_chord_seq(self) -> List[Union[None, Chord]]:
         chord_seq: List[Union[None, Chord]] = [None] * int(
@@ -160,10 +197,22 @@ def extract_features(cfg: Config) -> Tuple[np.ndarray, np.ndarray]:
         )
 
         if feat.get_mode() == "major":
-            note_seq = feat.get_onehot_note_seq()
-            chord_seq = feat.get_onehot_chord_seq()
+            seq_note_onehot = feat.get_onehot_note_seq()
+            seq_chord_chroma = feat.get_onehot_chord_seq()
+            seq_notenum = feat.get_seq_notenum()
+            seq_label = feat.get_seq_label()
 
-            divide_seq(cfg, note_seq, chord_seq, data_all, label_all)
+            print(seq_note_onehot.shape)
+            print(seq_notenum.shape)
+            print(seq_label.shape)
+            print(seq_chord_chroma.shape, "\n")
+
+            seq = np.vstack(np.split(seq_notenum, 64))
+            print(seq.shape)
+
+            divide_seq(
+                cfg, seq_note_onehot, seq_chord_chroma, data_all, label_all
+            )
 
     return np.array(data_all), np.array(label_all)
 
@@ -183,11 +232,11 @@ def save_features(
 @hydra.main(version_base=None, config_name="config")
 def main(cfg: Config) -> None:
     # Download Omnibook MusicXML
-    get_music_xml(cfg.benzaiten.xml_dir)
+    # get_music_xml(cfg.benzaiten.xml_dir)
     # Extract features from MusicXM.
     data_all, label_all = extract_features(cfg)
     # Save extracted features.
-    save_features(cfg.benzaiten.feature_dir, data_all, label_all)
+    # save_features(cfg.benzaiten.feature_dir, data_all, label_all)
 
 
 if __name__ == "__main__":

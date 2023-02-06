@@ -8,7 +8,7 @@ import numpy as np
 import torch
 
 from config import Config
-from model.cvae import Chord2Melody
+from model import EmbeddedLstmVAE, OnehotLstmVAE
 from utils import (
     calc_durations,
     calc_notenums_from_pianoroll,
@@ -23,7 +23,9 @@ from utils.visualize import plot_pianoroll, plot_pianorolls
 
 
 @torch.no_grad()
-def generate_pianoroll(model: Chord2Melody, chord_filepath: str) -> np.ndarray:
+def generate_pianoroll(
+    model: OnehotLstmVAE, chord_filepath: str
+) -> np.ndarray:
     chord_prog = read_chord_file(chord_filepath, 8, 4)
     chord_seq = make_chord_seq(chord_prog, 4, 4, 4)
     chroma_vec = chord_seq_to_chroma(chord_seq)
@@ -128,7 +130,7 @@ def main(cfg: Config) -> None:
             cfg.benzaiten.root_dir, cfg.benzaiten.train_dir, cfg.exp.name
         )
     )
-    model = Chord2Melody.load_from_checkpoint(
+    model = OnehotLstmVAE.load_from_checkpoint(
         checkpoint_path=str(train_output_dir / cfg.benzaiten.model_filename),
         hparams_file=str(train_output_dir / "config.yaml"),
     )
