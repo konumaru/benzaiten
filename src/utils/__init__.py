@@ -165,17 +165,20 @@ def calc_xy(
 def make_sequence(
     data: np.ndarray,
     max_seq_len: int,
+    stride: int = 16,
     drop_last: bool = True,
-    pad_value: float = 0.0,
+    pad_value: Any = 0,
 ) -> np.ndarray:
-    q, mod = divmod(len(data), max_seq_len)
-    if drop_last or mod == 0:
-        end_idx = len(data) - mod
-        sequence = data[:end_idx]
-    else:
-        num_pad = max_seq_len - mod
-        q = q + 1
-        sequence = np.concatenate((data, np.repeat(pad_value, num_pad)))
+    _sequence = []
+    for i in range(0, len(data), stride):
+        row = list(data[i : (i + max_seq_len)])
 
-    sequence = np.vstack(np.split(sequence, q))
+        if len(row) == max_seq_len:
+            _sequence.append(row)
+        elif not drop_last:
+            num_pad = max_seq_len - len(row)
+            row = row + [pad_value] * num_pad
+            _sequence.append(row)
+
+    sequence = np.array(_sequence)
     return sequence

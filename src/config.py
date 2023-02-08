@@ -58,6 +58,8 @@ class Feature:
     key_mode: str = "major"  # 生成するメロディの調のモード（"major" or "minor"）
     transpose: int = 12  # 生成するメロディにおける移調量
 
+    max_seq_len: int = 128
+
 
 # ====================
 # Model Config
