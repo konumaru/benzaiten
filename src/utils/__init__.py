@@ -165,12 +165,11 @@ def calc_xy(
 def make_sequence(
     data: np.ndarray,
     max_seq_len: int,
-    stride: int = 16,
     drop_last: bool = True,
     pad_value: Any = 0,
 ) -> np.ndarray:
     _sequence = []
-    for i in range(0, len(data), stride):
+    for i in range(0, len(data), max_seq_len):
         row = list(data[i : (i + max_seq_len)])
 
         if len(row) == max_seq_len:

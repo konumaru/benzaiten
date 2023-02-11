@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Union
 
 import hydra
 import midi2audio
@@ -12,11 +13,8 @@ from model import EmbeddedLstmVAE, OnehotLstmVAE
 from utils import (
     calc_durations,
     calc_notenums_from_pianoroll,
-    calc_xy,
     chord_seq_to_chroma,
-    extract_seq,
     make_chord_seq,
-    make_empty_pianoroll,
     read_chord_file,
 )
 from utils.visualize import plot_pianoroll, plot_pianorolls
@@ -24,42 +22,23 @@ from utils.visualize import plot_pianoroll, plot_pianorolls
 
 @torch.no_grad()
 def generate_pianoroll(
-    model: OnehotLstmVAE, chord_filepath: str
+    chord_filepath: str,
+    model: Union[EmbeddedLstmVAE, OnehotLstmVAE],
 ) -> np.ndarray:
     chord_prog = read_chord_file(chord_filepath, 8, 4)
-    chord_seq = make_chord_seq(chord_prog, 4, 4, 4)
-    chroma_vec = chord_seq_to_chroma(chord_seq)
+    seq_chord = make_chord_seq(chord_prog, 4, 4, 4)
+    seq_chord_chroma = chord_seq_to_chroma(seq_chord)
+    inputs = torch.from_numpy(seq_chord_chroma.astype(np.float32)).unsqueeze(0)
 
-    pianoroll = make_empty_pianoroll(chroma_vec.shape[0], 84, 36)
-    beat_width = 4 * 4
-    for i in range(0, 8, 4):
-        onehot_vectors, chord_vectors = extract_seq(
-            i, pianoroll, chroma_vec, 4, beat_width
-        )
-        feature_np, _ = calc_xy(onehot_vectors, chord_vectors)
-        feature = torch.from_numpy(feature_np).float()
-        feature = feature.unsqueeze(0)
-
-        # NOTE: CVAEで乱数を入力値にしたときの生成方法
-        # rand_latent = torch.rand(1, 128).to("cuda")
-
-        if i == 0:
-            rand_latent = torch.rand(1, 128)
-            chord_prog = feature[:, :, -12:]
-            y_new = model.decode(rand_latent, chord_prog)
-
-        else:
-            chord_prog = feature[:, :, -12:]
-            gen_melody = torch.from_numpy(
-                pianoroll.astype(np.float32)
-            ).unsqueeze(0)
-            y_new, _, _ = model(gen_melody, chord_prog)
+    melody_length = inputs.shape[1]  # 128
+    batch_size = int(melody_length / 2)  # 64
+    pianoroll = np.zeros((melody_length, 49))
+    for i in range(0, melody_length, batch_size):
+        latent_rand = torch.rand(1, model.latent_dim)
+        y_new = model.decode(latent_rand, inputs[:, i : i + batch_size])
 
         y_new = y_new.softmax(dim=2).cpu().detach().numpy()
-        y_new = y_new[0].T
-
-        index_from = i * 4 * 4
-        pianoroll[index_from : index_from + y_new.shape[1], :] = y_new.T
+        pianoroll[i : i + batch_size, :] = y_new[0]
 
     return pianoroll
 
@@ -155,8 +134,8 @@ def main(cfg: Config) -> None:
     pianorolls = []
     for i in range(cfg.generate.num_output):
         pianoroll = generate_pianoroll(
-            model,
             str(competition_dir / smpl_name / f"{smpl_name}_chord.csv"),
+            model,
         )
         pianorolls.append(pianoroll)
         plot_pianoroll(

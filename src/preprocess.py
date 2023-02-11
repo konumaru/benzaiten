@@ -24,6 +24,7 @@ class MusicXMLFeature(object):
         key_root: str = "C",
         num_beats: int = 4,
         num_parts_of_beat: int = 4,
+        max_measure_num: int = 240,
         min_note_num: int = 36,
         max_note_num: int = 84,
     ) -> None:
@@ -32,6 +33,7 @@ class MusicXMLFeature(object):
         self.score = self._get_score(xml_file, key_root)
         self.num_beats = num_beats
         self.num_parts_of_beat = num_parts_of_beat
+        self.max_measure_num = max_measure_num
         self.min_note_num = min_note_num
         self.max_note_num = max_note_num
 
@@ -56,8 +58,8 @@ class MusicXMLFeature(object):
     def get_notes_and_chords(
         self,
     ) -> Tuple[List[Union[None, Note]], List[Union[None, Chord]]]:
-        notes: List[Union[None, Note]] = []
-        chords: List[Union[None, Chord]] = []
+        notes = []
+        chords = []
         for measure in self.score.parts[0].getElementsByClass("Measure"):
             m_notes = [None] * self.num_beats * self.num_parts_of_beat
             for note in measure.getElementsByClass("Note"):
@@ -95,19 +97,22 @@ class MusicXMLFeature(object):
         return np.array(seq_notenum)
 
     def get_seq_note_onehot(self) -> np.ndarray:
-        seq_notenum = self.get_seq_notenum()
+        note_num_seq = [
+            int(n.pitch.midi - self.min_note_num) if n is not None else -1
+            for n in self.notes
+        ]
         num_note = self.max_note_num - self.min_note_num + 1
-        seq_note_onehot = np.identity(num_note)[seq_notenum]
-        return seq_note_onehot  # type: ignore
+        seq_note_onehot = np.identity(num_note)[note_num_seq]
+        return seq_note_onehot
 
-    def get_seq_chord_chroma(self) -> np.ndarray:
-        seq_chord_chroma = np.zeros((len(self.chords), 12))
+    def get_seq_chord_chorma(self) -> np.ndarray:
+        onehot_chord_seq = np.zeros((len(self.chords), 12))
         for i, chord in enumerate(self.chords):
             if chord is None:
                 continue
             for note in chord._notes:
-                seq_chord_chroma[i, note.pitch.midi % 12] = 1
-        return seq_chord_chroma
+                onehot_chord_seq[i, note.pitch.midi % 12] = 1
+        return onehot_chord_seq
 
 
 def get_music_xml(output_dir: str) -> None:
@@ -161,7 +166,7 @@ def extract_features(cfg: Config, save_dirpath: str) -> None:
         if feat.get_mode() == "major":
             seq_notenum = feat.get_seq_notenum()
             seq_note_onehot = feat.get_seq_note_onehot()
-            seq_chord_chroma = feat.get_seq_chord_chroma()
+            seq_chord_chroma = feat.get_seq_chord_chorma()
 
             feat_notenum = make_sequence(seq_notenum, cfg.feature.max_seq_len)
             feat_note_onehot = make_sequence(
@@ -179,7 +184,7 @@ def extract_features(cfg: Config, save_dirpath: str) -> None:
     feat_note_onehot_all_np = np.vstack(feat_note_onehot_all)
     feat_chord_chroma_all_np = np.vstack(feat_chord_chroma_all)
 
-    np.save(save_dir / "noutenum.npy", feat_notenum_all_np)
+    np.save(save_dir / "notenum.npy", feat_notenum_all_np)
     np.save(save_dir / "note_onehot.npy", feat_note_onehot_all_np)
     np.save(save_dir / "chord_chroma.npy", feat_chord_chroma_all_np)
 

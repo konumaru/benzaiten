@@ -35,7 +35,9 @@ class EncoderLSTM(nn.Module):
         self._to_mean = nn.Linear(hidden_dim, latent_dim)
         self._to_lnvar = nn.Linear(hidden_dim, latent_dim)
 
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+        self, x: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         _, (h, c) = self.lstm(x)
 
         if self.bidirectional:
@@ -49,7 +51,16 @@ class EncoderLSTM(nn.Module):
 
         mean = self._to_mean(z)
         logvar = self._to_lnvar(z)
-        return mean, logvar
+        latent = self.reparameterization(mean, logvar)
+        return latent, mean, logvar
+
+    def reparameterization(
+        self, mean: torch.Tensor, logvar: torch.Tensor
+    ) -> torch.Tensor:
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        latent = mean + eps * std
+        return latent
 
 
 class DecoderLSTM(nn.Module):
@@ -64,6 +75,7 @@ class DecoderLSTM(nn.Module):
         bidirectional: bool = False,
     ) -> None:
         super(DecoderLSTM, self).__init__()
+        self.bidirectional = bidirectional
         self.reverse_latent = nn.Linear(latent_dim, hidden_dim)
         self.fc_layers = nn.ModuleList([])
         self.fc_layers += [
@@ -92,8 +104,9 @@ class DecoderLSTM(nn.Module):
         z = z.repeat(1, seq_len, 1)
 
         z_seq = torch.cat([z, condition], dim=2)
-        output, _ = self.lstm(z_seq)
-        x_hat = self.output_layer(output)
+        h, _ = self.lstm(z_seq)
+
+        x_hat = self.output_layer(z)
         return x_hat  # type: ignore
 
 
@@ -113,6 +126,7 @@ class OnehotLstmVAE(pl.LightningModule):
         super(OnehotLstmVAE, self).__init__()
         self.save_hyperparameters()
 
+        self.latent_dim = latent_dim
         self.criterion = VAELoss()
         self.encoder = EncoderLSTM(
             input_dim,
@@ -132,18 +146,11 @@ class OnehotLstmVAE(pl.LightningModule):
             bidirectional=bidirectional,
         )
 
-    def reparameterization(
-        self, mean: torch.Tensor, logvar: torch.Tensor
-    ) -> torch.Tensor:
-        # TODO: この処理はLSTMEncoder内に持っていく
-        std = torch.exp(0.5 * logvar)
-        eps = torch.randn_like(std)
-        latent = mean + eps * std
-        return latent
-
-    def encode(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        mean, logvar = self.encoder(x)
-        return mean, logvar
+    def encode(
+        self, x: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        latent, mean, logvar = self.encoder(x)
+        return latent, mean, logvar
 
     def decode(
         self, latent: torch.Tensor, condition: torch.Tensor
@@ -154,8 +161,7 @@ class OnehotLstmVAE(pl.LightningModule):
     def forward(
         self, x: torch.Tensor, condition: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        mean, logvar = self.encode(x)
-        latent = self.reparameterization(mean, logvar)
+        latent, mean, logvar = self.encode(x)
         x_hat = self.decode(latent, condition)
         return x_hat, mean, logvar
 

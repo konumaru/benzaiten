@@ -58,7 +58,7 @@ class Feature:
     key_mode: str = "major"  # 生成するメロディの調のモード（"major" or "minor"）
     transpose: int = 12  # 生成するメロディにおける移調量
 
-    max_seq_len: int = 128
+    max_seq_len: int = 64
 
 
 # ====================
@@ -78,8 +78,22 @@ class OnehotLstmVAEConfig:
 
 
 @dataclass
+class OnehotLstmVAEDatasetConfig:
+    data_filepath: str = "/workspace/data/feature/note_onehot.npy"
+    condition_filepath: str = "/workspace/data/feature/chord_chroma.npy"
+    label_filepath: str = "/workspace/data/feature/notenum.npy"
+
+
+@dataclass
 class EmbeddedLstmVAEConfig:
     embedding_dim: int = 64
+
+
+@dataclass
+class EmbeddedLstmVAEDatasetConfig:
+    data_filepath: str = "/workspace/data/feature/notenum.npy"
+    condition_filepath: str = "/workspace/data/feature/chord_chroma.npy"
+    label_filepath: str = "/workspace/data/feature/notenum.npy"
 
 
 # ====================
@@ -123,12 +137,20 @@ class Config:
     benzaiten: Benzaiten = field(default_factory=Benzaiten)
     feature: Feature = field(default_factory=Feature)
 
-    # NTOE: model configs.
+    # Onehot model and dataset configs.
     onehot_model: OnehotLstmVAEConfig = field(
         default_factory=OnehotLstmVAEConfig
     )
+    onehot_dataset: OnehotLstmVAEDatasetConfig = field(
+        default_factory=OnehotLstmVAEDatasetConfig
+    )
+
+    # Embedded model and dataset configs.
     embedded_model: EmbeddedLstmVAEConfig = field(
         default_factory=EmbeddedLstmVAEConfig
+    )
+    embedded_dataset: EmbeddedLstmVAEDatasetConfig = field(
+        default_factory=EmbeddedLstmVAEDatasetConfig
     )
 
     # NTOE: train config.
