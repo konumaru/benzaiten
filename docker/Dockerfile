@@ -7,7 +7,6 @@ WORKDIR /workspace
 RUN apt update
 RUN apt install -y fluidsynth make bash-completion
 
-
 RUN pip install -U pip
 
 RUN pip install poetry

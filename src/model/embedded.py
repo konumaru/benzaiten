@@ -41,6 +41,7 @@ class EncoderLSTM(nn.Module):
         self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         x = self.embed(x)
+        print(x)
         _, (h, c) = self.lstm(x)
 
         if self.bidirectional:
@@ -127,6 +128,7 @@ class EmbeddedLstmVAE(pl.LightningModule):
         super(EmbeddedLstmVAE, self).__init__()
         self.save_hyperparameters()
 
+        self.latent_dim = latent_dim
         self.criterion = VAELoss()
         self.encoder = EncoderLSTM(
             input_dim,

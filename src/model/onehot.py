@@ -38,7 +38,7 @@ class EncoderLSTM(nn.Module):
     def forward(
         self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        _, (h, c) = self.lstm(x)
+        _, (h, _) = self.lstm(x)
 
         if self.bidirectional:
             z = h[:2, :, :].mean(dim=0)

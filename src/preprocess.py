@@ -108,10 +108,9 @@ class MusicXMLFeature(object):
     def get_seq_chord_chorma(self) -> np.ndarray:
         onehot_chord_seq = np.zeros((len(self.chords), 12))
         for i, chord in enumerate(self.chords):
-            if chord is None:
-                continue
-            for note in chord._notes:
-                onehot_chord_seq[i, note.pitch.midi % 12] = 1
+            if chord is not None:
+                for note in chord._notes:
+                    onehot_chord_seq[i, note.pitch.midi % 12] = 1
         return onehot_chord_seq
 
 
@@ -163,49 +162,36 @@ def extract_features(cfg: Config, save_dirpath: str) -> None:
             max_note_num=cfg.feature.notenum_thru,
         )
 
-        # NOTE: save mode sequence, major or minor
-        mode = feat.get_mode()
+        # TODO: Save mode sequence, major or minor
         mode_map = {"major": 0.0, "minor": 1.0}
-        seq_notenum = feat.get_seq_notenum()
-        seq_note_onehot = feat.get_seq_note_onehot()
-        seq_chord_chroma = feat.get_seq_chord_chorma()
-        seq_mode = np.tile([mode_map[mode]], len(seq_notenum))
+        mode = feat.get_mode()
+        if mode == "major":
+            seq_notenum = feat.get_seq_notenum()
+            seq_note_onehot = feat.get_seq_note_onehot()
+            seq_chord_chroma = feat.get_seq_chord_chorma()
 
-        feat_notenum = make_sequence(seq_notenum, cfg.feature.max_seq_len)
-        feat_note_onehot = make_sequence(
-            seq_note_onehot, cfg.feature.max_seq_len
-        )
-        feat_chord_chroma = make_sequence(
-            seq_chord_chroma, cfg.feature.max_seq_len
-        )
-        feat_mode = make_sequence(seq_mode, cfg.feature.max_seq_len)
+            feat_notenum = make_sequence(seq_notenum, cfg.feature.max_seq_len)
+            feat_note_onehot = make_sequence(
+                seq_note_onehot, cfg.feature.max_seq_len
+            )
+            feat_chord_chroma = make_sequence(
+                seq_chord_chroma, cfg.feature.max_seq_len
+            )
 
-        feat_notenum_all.append(feat_notenum)
-        feat_note_onehot_all.append(feat_note_onehot)
-        feat_chord_chroma_all.append(feat_chord_chroma)
-        feat_mode_all.append(feat_mode)
+            feat_notenum_all.append(feat_notenum)
+            feat_note_onehot_all.append(feat_note_onehot)
+            feat_chord_chroma_all.append(feat_chord_chroma)
+            feat_mode_all.append(np.tile([mode_map[mode]], len(feat_notenum)))
 
     feat_notenum_all_np = np.vstack(feat_notenum_all)
     feat_note_onehot_all_np = np.vstack(feat_note_onehot_all)
     feat_chord_chroma_all_np = np.vstack(feat_chord_chroma_all)
-    feat_mode_all_np = np.vstack(feat_mode_all)
+    feat_mode_all_np = np.concatenate(feat_mode_all)
 
     np.save(save_dir / "notenum.npy", feat_notenum_all_np)
     np.save(save_dir / "note_onehot.npy", feat_note_onehot_all_np)
     np.save(save_dir / "chord_chroma.npy", feat_chord_chroma_all_np)
     np.save(save_dir / "mode.npy", feat_mode_all_np)
-
-
-def save_features(
-    output_dit: str, data_all: np.ndarray, label_all: np.ndarray
-) -> None:
-    feat_dir = os.path.join("/workspace/data", output_dit)
-    os.makedirs(feat_dir, exist_ok=True)
-
-    feat_file = os.path.join(feat_dir, "benzaiten_feats.pkl")
-    joblib.dump({"data": data_all, "label": label_all}, feat_file)
-
-    print("Save extracted features to " + feat_file)
 
 
 @hydra.main(version_base=None, config_name="config")
