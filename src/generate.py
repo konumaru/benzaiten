@@ -15,6 +15,7 @@ from utils import (
     calc_notenums_from_pianoroll,
     chord_seq_to_chroma,
     make_chord_seq,
+    postprocess_to_diatonic_melody,
     read_chord_file,
 )
 from utils.visualize import plot_pianoroll, plot_pianorolls
@@ -62,6 +63,7 @@ def make_midi(
 ) -> None:
     notenums = calc_notenums_from_pianoroll(pianoroll, 36)
     notenums, durations = calc_durations(notenums)
+    notenums = postprocess_to_diatonic_melody(notenums)
 
     # NOTE: make midi.
     beat_reso = 4

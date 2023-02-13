@@ -1,4 +1,5 @@
 import csv
+import random
 from typing import Any, List, Tuple
 
 import music21
@@ -124,3 +125,15 @@ def make_sequence(
 
     sequence = np.array(_sequence)
     return sequence
+
+
+def postprocess_to_diatonic_melody(notenums: List[int]) -> List[int]:
+    for i, note in enumerate(notenums):
+        key = note % 12
+
+        if (
+            key not in {0, 2, 4, 5, 7, 9, 11} and note > 0
+        ):  # Cキーとした時のダイアトニックに該当しない場合
+            notenums[i] += int(random.random() < 0.5)
+
+    return notenums
