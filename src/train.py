@@ -18,7 +18,7 @@ from model import EmbeddedLstmVAE, OnehotLstmVAE
 def get_dataloader_and_model(
     cfg: Config,
 ) -> Tuple[DataLoader, Union[OnehotLstmVAE, EmbeddedLstmVAE]]:
-    if cfg.exp.name == "onhot":
+    if cfg.exp.name == "onehot":
         dataloader = get_dataloader(
             data_filepath=cfg.onehot_dataset.data_filepath,
             condition_filepath=cfg.onehot_dataset.condition_filepath,

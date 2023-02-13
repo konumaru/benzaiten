@@ -46,6 +46,6 @@ def get_dataloader(
         batch_size=batch_size,
         shuffle=True,
         drop_last=True,
-        num_workers=2,
+        num_workers=4,
     )
     return dataloader

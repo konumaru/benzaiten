@@ -83,7 +83,7 @@ def calc_notenums_from_pianoroll(
     note_nums = []
     for i in range(pianoroll.shape[0]):
         num = np.argmax(pianoroll[i, :])
-        note_num = -1 if num == pianoroll.shape[1] - 1 else num + notenum_from
+        note_num = -1 if num == 0 else num + notenum_from - 1
         note_nums.append(note_num)
     return note_nums
 

@@ -97,13 +97,11 @@ class MusicXMLFeature(object):
         return np.array(seq_notenum)
 
     def get_seq_note_onehot(self) -> np.ndarray:
-        note_num_seq = [
-            int(n.pitch.midi - self.min_note_num) if n is not None else -1
-            for n in self.notes
-        ]
+        notenum = self.get_seq_notenum()
+
         num_note = self.max_note_num - self.min_note_num + 1
-        seq_note_onehot = np.identity(num_note)[note_num_seq]
-        return seq_note_onehot
+        seq_note_onehot = np.identity(num_note)[notenum]
+        return seq_note_onehot  # type: ignore
 
     def get_seq_chord_chorma(self) -> np.ndarray:
         onehot_chord_seq = np.zeros((len(self.chords), 12))

@@ -106,7 +106,7 @@ class DecoderLSTM(nn.Module):
         z_seq = torch.cat([z, condition], dim=2)
         h, _ = self.lstm(z_seq)
 
-        x_hat = self.output_layer(z)
+        x_hat = self.output_layer(h)
         return x_hat  # type: ignore
 
 

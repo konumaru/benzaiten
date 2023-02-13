@@ -108,7 +108,7 @@ class TrainConfig:
     num_epoch: int = 2000
     grad_clip_val: float = 1.0
 
-    learning_rate: float = 3e-4
+    learning_rate: float = 3e-3
 
 
 # ====================
