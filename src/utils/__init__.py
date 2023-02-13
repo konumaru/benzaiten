@@ -1,11 +1,8 @@
 import csv
 from typing import Any, List, Tuple
 
-import mido
 import music21
 import numpy as np
-
-from config import Config
 
 
 def extract_seq(
@@ -71,12 +68,6 @@ def make_chord_seq(
     return seq
 
 
-def make_empty_pianoroll(
-    length: int, notenum_thru: int, notenum_from: int
-) -> np.ndarray:
-    return np.zeros((length, notenum_thru - notenum_from + 1))
-
-
 def calc_notenums_from_pianoroll(
     pianoroll: np.ndarray, notenum_from: int
 ) -> List[Any]:
@@ -101,54 +92,6 @@ def calc_durations(notenums: List[Any]) -> Tuple[List[Any], List[int]]:
                 break
             k += 1
     return notenums, duration
-
-
-def make_midi(
-    cfg: Config, backing_file: str, notenums: List[Any], durations: List[int]
-) -> mido.MidiFile:
-    beat_reso = cfg.feature.beat_reso
-    n_beats = cfg.feature.n_beats
-    transpose = cfg.feature.transpose
-    intro_blank_measures = cfg.feature.intro_blank_measures
-
-    midi = mido.MidiFile(backing_file)
-    track = mido.MidiTrack()
-    midi.tracks.append(track)
-
-    var = {
-        "init_tick": intro_blank_measures * n_beats * midi.ticks_per_beat,
-        "cur_tick": 0,
-        "prev_tick": 0,
-    }
-    for i, notenum in enumerate(notenums):
-        if notenum > 0:
-            var["cur_tick"] = (
-                int(i * midi.ticks_per_beat / beat_reso) + var["init_tick"]
-            )
-            track.append(
-                mido.Message(
-                    "note_on",
-                    note=notenum + transpose,
-                    velocity=100,
-                    time=var["cur_tick"] - var["prev_tick"],
-                )
-            )
-            var["prev_tick"] = var["cur_tick"]
-            var["cur_tick"] = (
-                int((i + durations[i]) * midi.ticks_per_beat / beat_reso)
-                + var["init_tick"]
-            )
-            track.append(
-                mido.Message(
-                    "note_off",
-                    note=notenum + transpose,
-                    velocity=100,
-                    time=var["cur_tick"] - var["prev_tick"],
-                )
-            )
-            var["prev_tick"] = var["cur_tick"]
-
-    return midi
 
 
 def calc_xy(

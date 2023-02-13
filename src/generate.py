@@ -20,15 +20,27 @@ from utils import (
 from utils.visualize import plot_pianoroll, plot_pianorolls
 
 
+def get_mode(key_filepath: str) -> str:
+    with open(key_filepath, "r") as file:
+        key = file.read()
+    mode = key.split(" ")[1]
+    return mode
+
+
 @torch.no_grad()
 def generate_pianoroll(
     chord_filepath: str,
+    mode: str,
     model: Union[EmbeddedLstmVAE, OnehotLstmVAE],
 ) -> np.ndarray:
     chord_prog = read_chord_file(chord_filepath, 8, 4)
     seq_chord = make_chord_seq(chord_prog, 4, 4, 4)
     seq_chord_chroma = chord_seq_to_chroma(seq_chord)
-    seq_mode = np.zeros((128, 1))
+
+    seq_mode = np.zeros((128, 1))  # major
+    if mode == "minor":
+        seq_mode = np.ones((128, 1))  # minor
+
     condition = np.concatenate((seq_chord_chroma, seq_mode), axis=1)
     inputs = torch.from_numpy(condition.astype(np.float32)).unsqueeze(0)
 
@@ -75,7 +87,7 @@ def make_midi(
                 mido.Message(
                     "note_on",
                     note=notenum + transpose,
-                    velocity=120,
+                    velocity=110,
                     time=var["cur_tick"] - var["prev_tick"],
                 )
             )
@@ -133,10 +145,13 @@ def main(cfg: Config) -> None:
     (output_dir / "midi").mkdir(parents=True, exist_ok=True)
     (output_dir / "wav").mkdir(parents=True, exist_ok=True)
 
+    mode = get_mode(str(competition_dir / smpl_name / f"{smpl_name}_key.txt"))
+
     pianorolls = []
     for i in range(cfg.generate.num_output):
         pianoroll = generate_pianoroll(
             str(competition_dir / smpl_name / f"{smpl_name}_chord.csv"),
+            mode,
             model,
         )
         pianorolls.append(pianoroll)
