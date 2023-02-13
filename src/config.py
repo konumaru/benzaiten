@@ -60,6 +60,11 @@ class Feature:
 
     max_seq_len: int = 64
 
+    notenum_filepath: str = "/workspace/data/feature/notenum.npy"
+    note_onehot_filepath: str = "/workspace/data/feature/note_onehot.npy"
+    chord_chroma_filepath: str = "/workspace/data/feature/chord_chroma.npy"
+    mode_filepath: str = "/workspace/data/feature/mode.npy"
+
 
 # ====================
 # Model Config
@@ -69,7 +74,7 @@ class Feature:
 @dataclass
 class OnehotLstmVAEConfig:
     input_dim: int = 49
-    condition_dim: int = 12
+    condition_dim: int = 12 + 1
     hidden_dim: int = 1024
     latent_dim: int = 128
     num_lstm_layers: int = 2
@@ -78,22 +83,8 @@ class OnehotLstmVAEConfig:
 
 
 @dataclass
-class OnehotLstmVAEDatasetConfig:
-    data_filepath: str = "/workspace/data/feature/note_onehot.npy"
-    condition_filepath: str = "/workspace/data/feature/chord_chroma.npy"
-    label_filepath: str = "/workspace/data/feature/notenum.npy"
-
-
-@dataclass
 class EmbeddedLstmVAEConfig:
     embedding_dim: int = 64
-
-
-@dataclass
-class EmbeddedLstmVAEDatasetConfig:
-    data_filepath: str = "/workspace/data/feature/notenum.npy"
-    condition_filepath: str = "/workspace/data/feature/chord_chroma.npy"
-    label_filepath: str = "/workspace/data/feature/notenum.npy"
 
 
 # ====================
@@ -141,16 +132,9 @@ class Config:
     onehot_model: OnehotLstmVAEConfig = field(
         default_factory=OnehotLstmVAEConfig
     )
-    onehot_dataset: OnehotLstmVAEDatasetConfig = field(
-        default_factory=OnehotLstmVAEDatasetConfig
-    )
-
     # Embedded model and dataset configs.
     embedded_model: EmbeddedLstmVAEConfig = field(
         default_factory=EmbeddedLstmVAEConfig
-    )
-    embedded_dataset: EmbeddedLstmVAEDatasetConfig = field(
-        default_factory=EmbeddedLstmVAEDatasetConfig
     )
 
     # NTOE: train config.

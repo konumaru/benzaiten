@@ -57,8 +57,8 @@ class MusicXMLFeature(object):
     def get_notes_and_chords(
         self,
     ) -> Tuple[List[Union[None, Note]], List[Union[None, Chord]]]:
-        notes = []
-        chords = []
+        notes = []  # type: ignore
+        chords = []  # type: ignore
         for measure in self.score.parts[0].getElementsByClass("Measure"):
             m_notes = [None] * self.num_beats * self.num_parts_of_beat
             for note in measure.getElementsByClass("Note"):
@@ -162,23 +162,23 @@ def extract_features(cfg: Config, save_dirpath: str) -> None:
         # TODO: Save mode sequence, major or minor
         mode_map = {"major": 0.0, "minor": 1.0}
         mode = feat.get_mode()
-        if mode == "major":
-            seq_notenum = feat.get_seq_notenum()
-            seq_note_onehot = feat.get_seq_note_onehot()
-            seq_chord_chroma = feat.get_seq_chord_chorma()
 
-            feat_notenum = make_sequence(seq_notenum, cfg.feature.max_seq_len)
-            feat_note_onehot = make_sequence(
-                seq_note_onehot, cfg.feature.max_seq_len
-            )
-            feat_chord_chroma = make_sequence(
-                seq_chord_chroma, cfg.feature.max_seq_len
-            )
+        seq_notenum = feat.get_seq_notenum()
+        seq_note_onehot = feat.get_seq_note_onehot()
+        seq_chord_chroma = feat.get_seq_chord_chorma()
 
-            feat_notenum_all.append(feat_notenum)
-            feat_note_onehot_all.append(feat_note_onehot)
-            feat_chord_chroma_all.append(feat_chord_chroma)
-            feat_mode_all.append(np.tile([mode_map[mode]], len(feat_notenum)))
+        feat_notenum = make_sequence(seq_notenum, cfg.feature.max_seq_len)
+        feat_note_onehot = make_sequence(
+            seq_note_onehot, cfg.feature.max_seq_len
+        )
+        feat_chord_chroma = make_sequence(
+            seq_chord_chroma, cfg.feature.max_seq_len
+        )
+
+        feat_notenum_all.append(feat_notenum)
+        feat_note_onehot_all.append(feat_note_onehot)
+        feat_chord_chroma_all.append(feat_chord_chroma)
+        feat_mode_all.append(np.tile([mode_map[mode]], len(feat_notenum)))
 
     feat_notenum_all_np = np.vstack(feat_notenum_all)
     feat_note_onehot_all_np = np.vstack(feat_note_onehot_all)

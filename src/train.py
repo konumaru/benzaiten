@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Tuple, Union
 
 import hydra
+import numpy as np
 import pytorch_lightning as pl
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint
@@ -18,27 +19,36 @@ from model import EmbeddedLstmVAE, OnehotLstmVAE
 def get_dataloader_and_model(
     cfg: Config,
 ) -> Tuple[DataLoader, Union[OnehotLstmVAE, EmbeddedLstmVAE]]:
+    seq_notenum = np.load(cfg.feature.notenum_filepath)
+    seq_note_onehot = np.load(cfg.feature.note_onehot_filepath)
+    seq_chord_chroma = np.load(cfg.feature.chord_chroma_filepath)
+
+    mode = np.load(cfg.feature.mode_filepath)
+    seq_mode = np.tile(mode, (1, 64, 1)).transpose((2, 1, 0))
+
+    condition = np.concatenate((seq_chord_chroma, seq_mode), axis=2)
+
     if cfg.exp.name == "onehot":
         dataloader = get_dataloader(
-            data_filepath=cfg.onehot_dataset.data_filepath,
-            condition_filepath=cfg.onehot_dataset.condition_filepath,
-            label_filepath=cfg.onehot_dataset.label_filepath,
+            seq_note_onehot,
+            condition,
+            seq_notenum,
             batch_size=cfg.train.batch_size,
         )
         model = OnehotLstmVAE(**dict(cfg.onehot_model))  # type: ignore
     elif cfg.exp.name == "embedded":
         dataloader = get_dataloader(
-            data_filepath=cfg.embedded_dataset.data_filepath,
-            condition_filepath=cfg.embedded_dataset.condition_filepath,
-            label_filepath=cfg.embedded_dataset.label_filepath,
+            seq_notenum,
+            seq_chord_chroma,
+            seq_notenum,
             batch_size=cfg.train.batch_size,
         )
         model = EmbeddedLstmVAE(**dict(cfg.embedded_model))  # type: ignore
     else:
         dataloader = get_dataloader(
-            data_filepath=cfg.onehot_dataset.data_filepath,
-            condition_filepath=cfg.onehot_dataset.condition_filepath,
-            label_filepath=cfg.onehot_dataset.label_filepath,
+            seq_note_onehot,
+            condition,
+            seq_notenum,
             batch_size=cfg.train.batch_size,
         )
         model = OnehotLstmVAE(**dict(cfg.onehot_model))  # type: ignore

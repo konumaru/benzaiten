@@ -31,15 +31,11 @@ class BenzaitenDataset(Dataset):
 
 
 def get_dataloader(
-    data_filepath: str,
-    condition_filepath: str,
-    label_filepath: str,
+    data: np.ndarray,
+    condition: np.ndarray,
+    label: np.ndarray,
     batch_size: int,
 ) -> DataLoader:
-    data = np.load(data_filepath)
-    condition = np.load(condition_filepath)
-    label = np.load(label_filepath)
-
     dataset = BenzaitenDataset(data, condition, label)
     dataloader = DataLoader(
         dataset,

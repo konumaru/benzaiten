@@ -28,7 +28,9 @@ def generate_pianoroll(
     chord_prog = read_chord_file(chord_filepath, 8, 4)
     seq_chord = make_chord_seq(chord_prog, 4, 4, 4)
     seq_chord_chroma = chord_seq_to_chroma(seq_chord)
-    inputs = torch.from_numpy(seq_chord_chroma.astype(np.float32)).unsqueeze(0)
+    seq_mode = np.zeros((128, 1))
+    condition = np.concatenate((seq_chord_chroma, seq_mode), axis=1)
+    inputs = torch.from_numpy(condition.astype(np.float32)).unsqueeze(0)
 
     melody_length = inputs.shape[1]  # 128
     batch_size = int(melody_length / 2)  # 64
@@ -73,7 +75,7 @@ def make_midi(
                 mido.Message(
                     "note_on",
                     note=notenum + transpose,
-                    velocity=100,
+                    velocity=120,
                     time=var["cur_tick"] - var["prev_tick"],
                 )
             )
