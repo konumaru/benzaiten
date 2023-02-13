@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import List, Tuple, Union
 
 import hydra
-import joblib
 import music21
 import numpy as np
 from music21.chord import Chord

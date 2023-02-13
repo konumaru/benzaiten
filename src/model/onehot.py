@@ -89,7 +89,8 @@ class DecoderLSTM(nn.Module):
             batch_first=True,
             bidirectional=bidirectional,
         )
-        self.output_layer = nn.Linear(hidden_dim, output_dim)
+        lstm_hidden_dim = hidden_dim * 2 if bidirectional else hidden_dim
+        self.output_layer = nn.Linear(lstm_hidden_dim, output_dim)
 
     def forward(
         self, latent: torch.Tensor, condition: torch.Tensor
@@ -104,10 +105,10 @@ class DecoderLSTM(nn.Module):
         z = z.repeat(1, seq_len, 1)
 
         z_seq = torch.cat([z, condition], dim=2)
-        h, _ = self.lstm(z_seq)
+        z, _ = self.lstm(z_seq)
 
-        x_hat = self.output_layer(h)
-        return x_hat  # type: ignore
+        z = self.output_layer(z)
+        return z  # type: ignore
 
 
 class OnehotLstmVAE(pl.LightningModule):

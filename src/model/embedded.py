@@ -41,7 +41,6 @@ class EncoderLSTM(nn.Module):
         self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         x = self.embed(x)
-        print(x)
         _, (h, c) = self.lstm(x)
 
         if self.bidirectional:
