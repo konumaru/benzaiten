@@ -117,6 +117,7 @@ class EmbeddedLstmVAE(pl.LightningModule):
     def __init__(
         self,
         input_dim: int,
+        embedding_dim: int,
         hidden_dim: int,
         latent_dim: int,
         condition_dim: int,
@@ -130,12 +131,13 @@ class EmbeddedLstmVAE(pl.LightningModule):
         self.latent_dim = latent_dim
         self.criterion = VAELoss()
         self.encoder = EncoderLSTM(
-            input_dim,
-            latent_dim,
-            hidden_dim,
-            num_lstm_layers,
-            num_fc_layers,
-            bidirectional=bidirectional,
+            num_embeddings=input_dim,
+            embedding_dim=embedding_dim,
+            latent_dim=latent_dim,
+            hidden_dim=hidden_dim,
+            num_lstm_layers=1,
+            num_fc_layers=4,
+            bidirectional=False,
         )
         self.decoder = DecoderLSTM(
             latent_dim=latent_dim,

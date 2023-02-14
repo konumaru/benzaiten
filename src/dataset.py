@@ -16,9 +16,9 @@ class BenzaitenDataset(Dataset):
         super().__init__()
         assert len(data) == len(condition)
 
-        self.data = data.astype(np.float32)
-        self.condition = condition.astype(np.float32)
-        self.label = label.astype(np.int64)
+        self.data = data
+        self.condition = condition
+        self.label = label
 
     def __len__(self) -> int:
         """Return dataset size."""

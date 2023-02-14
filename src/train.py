@@ -19,6 +19,8 @@ from model import EmbeddedLstmVAE, OnehotLstmVAE
 def get_dataloader_and_model(
     cfg: Config,
 ) -> Tuple[DataLoader, Union[OnehotLstmVAE, EmbeddedLstmVAE]]:
+    assert cfg.exp.name in ("working", "onehot", "embedded")
+
     seq_notenum = np.load(cfg.feature.notenum_filepath)
     seq_note_onehot = np.load(cfg.feature.note_onehot_filepath)
     seq_chord_chroma = np.load(cfg.feature.chord_chroma_filepath)
@@ -30,25 +32,25 @@ def get_dataloader_and_model(
 
     if cfg.exp.name == "onehot":
         dataloader = get_dataloader(
-            seq_note_onehot,
-            condition,
-            seq_notenum,
+            seq_note_onehot.astype(np.float32),
+            condition.astype(np.float32),
+            seq_notenum.astype(np.int64),
             batch_size=cfg.train.batch_size,
         )
         model = OnehotLstmVAE(**dict(cfg.onehot_model))  # type: ignore
     elif cfg.exp.name == "embedded":
         dataloader = get_dataloader(
-            seq_notenum,
-            seq_chord_chroma,
-            seq_notenum,
+            seq_notenum.astype(np.int64),
+            condition.astype(np.float32),
+            seq_notenum.astype(np.int64),
             batch_size=cfg.train.batch_size,
         )
         model = EmbeddedLstmVAE(**dict(cfg.embedded_model))  # type: ignore
     else:
         dataloader = get_dataloader(
-            seq_note_onehot,
-            condition,
-            seq_notenum,
+            seq_note_onehot.astype(np.float32),
+            condition.astype(np.float32),
+            seq_notenum.astype(np.int64),
             batch_size=cfg.train.batch_size,
         )
         model = OnehotLstmVAE(**dict(cfg.onehot_model))  # type: ignore

@@ -130,7 +130,15 @@ dmypy.json
 
 # Outputs
 data/*
+!data/.gitkeep
+
+!data/competition/
+data/competition/*
+!data/competition/sample1/
+
+!data/train/
+data/train/*/checkpoints/
+data/train/*/logs/
 !data/train/*/best_models.ckpt
 !data/train/*/config_hydra.yaml
 !data/train/*/config.yaml
-!data/train/onehot/config.yaml

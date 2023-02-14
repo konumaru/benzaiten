@@ -9,8 +9,8 @@ SMPL_DATA_SIZE = 16
 @pytest.fixture
 def seq_notenum() -> torch.Tensor:
     seq_len = 64
-    note_seq = torch.randint(20, (SMPL_DATA_SIZE, seq_len))
-    return note_seq
+    notes = torch.randint(20, (SMPL_DATA_SIZE, seq_len))
+    return notes
 
 
 @pytest.fixture
@@ -58,6 +58,7 @@ def test_embedded_model(
 ) -> None:
     model = EmbeddedLstmVAE(
         input_dim=64,
+        embedding_dim=16,
         hidden_dim=16,
         latent_dim=16,
         condition_dim=12,

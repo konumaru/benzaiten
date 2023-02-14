@@ -84,7 +84,14 @@ class OnehotLstmVAEConfig:
 
 @dataclass
 class EmbeddedLstmVAEConfig:
+    input_dim: int = 49
     embedding_dim: int = 64
+    hidden_dim: int = 1024
+    latent_dim: int = 128
+    condition_dim: int = 12 + 1
+    num_lstm_layers: int = 2
+    num_fc_layers: int = 2
+    bidirectional: bool = False
 
 
 # ====================
@@ -99,7 +106,7 @@ class TrainConfig:
     num_epoch: int = 2000
     grad_clip_val: float = 1.0
 
-    learning_rate: float = 3e-3
+    learning_rate: float = 3e-4
 
 
 # ====================
