@@ -139,6 +139,5 @@ data/competition/*
 !data/train/
 data/train/*/checkpoints/
 data/train/*/logs/
-!data/train/*/best_models.ckpt
 !data/train/*/config_hydra.yaml
 !data/train/*/config.yaml

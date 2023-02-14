@@ -1,0 +1,50 @@
+seed: 42
+exp:
+  name: working
+benzaiten:
+  root_dir: ./data/
+  xml_dir: xml/
+  feature_dir: feature/
+  model_dir: model/
+  train_dir: train/
+  model_filename: best_model.ckpt
+  competition_dir: competition/
+  generated_dir: generated/
+  pianoroll_filename: output.png
+  midi_filename: output.midi
+  wav_filename: output.wav
+feature:
+  total_measures: 240
+  unit_meseq_labelasures: 4
+  beat_reso: 4
+  n_beats: 4
+  notenum_from: 36
+  notenum_thru: 84
+  intro_blank_measures: 4
+  melody_length: 8
+  key_root: C
+  key_mode: major
+  transpose: 12
+  max_seq_len: 64
+  notenum_filepath: /workspace/data/feature/notenum.npy
+  note_onehot_filepath: /workspace/data/feature/note_onehot.npy
+  chord_chroma_filepath: /workspace/data/feature/chord_chroma.npy
+  mode_filepath: /workspace/data/feature/mode.npy
+onehot_model:
+  input_dim: 49
+  condition_dim: 13
+  hidden_dim: 1024
+  latent_dim: 128
+  num_lstm_layers: 2
+  num_fc_layers: 3
+  bidirectional: false
+embedded_model:
+  embedding_dim: 64
+train:
+  batch_size: 32
+  num_epoch: 500
+  grad_clip_val: 1.0
+  learning_rate: 0.003
+sample_name: sample1
+generate:
+  num_output: 5
