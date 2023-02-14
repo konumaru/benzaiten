@@ -128,12 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# XML files
-!data/comp_inputs/.gitkeep
-data/feature/
-data/generated/
-data/hydra_output/
-data/train/
-data/xml/
-*.wav
-*.midi
+# Outputs
+data/*
+!data/train/*/best_models.ckpt
+!data/train/*/config_hydra.yaml
+!data/train/*/config.yaml
+!data/train/onehot/config.yaml
