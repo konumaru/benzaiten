@@ -1,6 +1,6 @@
 seed: 42
 exp:
-  name: working
+  name: onehot
 benzaiten:
   root_dir: ./data/
   xml_dir: xml/
@@ -39,12 +39,19 @@ onehot_model:
   num_fc_layers: 3
   bidirectional: false
 embedded_model:
+  input_dim: 49
   embedding_dim: 64
+  hidden_dim: 1024
+  latent_dim: 128
+  condition_dim: 13
+  num_lstm_layers: 2
+  num_fc_layers: 2
+  bidirectional: false
 train:
   batch_size: 32
-  num_epoch: 500
+  num_epoch: 2000
   grad_clip_val: 1.0
-  learning_rate: 0.003
+  learning_rate: 0.0003
 sample_name: sample1
 generate:
   num_output: 5
