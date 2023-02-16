@@ -113,11 +113,11 @@ class MusicXMLFeature(object):
 
 def get_music_xml(output_dir: str) -> None:
     subprocess.run(
-        "echo -n Download Omnibook MusicXML ...", text=True, shell=True
+        "echo -n Download Omnibook MusicXML ...\n", text=True, shell=True
     )
 
     xml_url = "https://homepages.loria.fr/evincent/omnibook/omnibook_xml.zip"
-    command = "wget " + output_dir
+    command = " ".join(["wget" , xml_url , output_dir])
     subprocess.run(command, text=True, shell=True, capture_output=True)
 
     zip_file = os.path.basename(xml_url)
@@ -129,7 +129,7 @@ def get_music_xml(output_dir: str) -> None:
 
     xml_dir = os.path.join("/workspace/data", "xml/")
     os.makedirs(xml_dir, exist_ok=True)
-    command = str("mv " + "Omnibook\\ xml/*.xml " + output_dir)
+    command = str("mv " + "Omnibook\\ xml/*.xml " + xml_dir)
     subprocess.run(command, text=True, shell=True)
 
     command = str("rm -rf Omnibook\\ xml")
@@ -143,6 +143,8 @@ def get_music_xml(output_dir: str) -> None:
 
 def extract_features(cfg: Config, save_dirpath: str) -> None:
     save_dir = Path(save_dirpath)
+    save_dir.mkdir(exist_ok=True)
+    
     feat_notenum_all = []
     feat_note_onehot_all = []
     feat_chord_chroma_all = []

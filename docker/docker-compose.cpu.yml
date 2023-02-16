@@ -1,0 +1,10 @@
+version: "3"
+services:
+  benzaiten:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - ..:/workspace
+    working_dir: /workspace
+    tty: true
