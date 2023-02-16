@@ -50,7 +50,7 @@ def generate_pianoroll(
     pianoroll = np.zeros((melody_length, 49))
 
     for i in range(0, melody_length, batch_size):
-        latent_rand = torch.rand(1, model.latent_dim)
+        latent_rand = torch.randn(1, model.latent_dim)
         y_new = model.decode(latent_rand, inputs[:, i : i + batch_size])
 
         y_new = y_new.softmax(dim=2).cpu().detach().numpy()
@@ -133,6 +133,7 @@ def get_model(cfg: Config) -> Union[OnehotLstmVAE, EmbeddedLstmVAE]:
                 train_output_dir / cfg.benzaiten.model_filename
             ),
             hparams_file=str(train_output_dir / "config.yaml"),
+            map_location=torch.device("cpu"),
         )
     elif cfg.exp.name == "embedded":
         return EmbeddedLstmVAE.load_from_checkpoint(
@@ -140,6 +141,7 @@ def get_model(cfg: Config) -> Union[OnehotLstmVAE, EmbeddedLstmVAE]:
                 train_output_dir / cfg.benzaiten.model_filename
             ),
             hparams_file=str(train_output_dir / "config.yaml"),
+            map_location=torch.device("cpu"),
         )
     else:
         return OnehotLstmVAE.load_from_checkpoint(
@@ -147,6 +149,7 @@ def get_model(cfg: Config) -> Union[OnehotLstmVAE, EmbeddedLstmVAE]:
                 train_output_dir / cfg.benzaiten.model_filename
             ),
             hparams_file=str(train_output_dir / "config.yaml"),
+            map_location=torch.device("cpu"),
         )
 
 
