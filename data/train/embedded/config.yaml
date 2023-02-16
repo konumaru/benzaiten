@@ -1,0 +1,8 @@
+input_dim: 49
+embedding_dim: 128
+hidden_dim: 512
+latent_dim: 64
+condition_dim: 13
+num_lstm_layers: 3
+num_fc_layers: 2
+bidirectional: false

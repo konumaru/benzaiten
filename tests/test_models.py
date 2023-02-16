@@ -45,6 +45,20 @@ def test_onehot_model(
         condition_dim=chord_feat_dim,
         num_lstm_layers=1,
         num_fc_layers=1,
+        bidirectional=False,
+    )
+    x_hat, mean, logvar = model(seq_note_onehot, seq_chord_chroma)
+
+    loss = model.criterion(label, x_hat, mean, logvar)
+    loss.backward()
+
+    model = OnehotLstmVAE(
+        input_dim=note_feat_dim,
+        hidden_dim=16,
+        latent_dim=16,
+        condition_dim=chord_feat_dim,
+        num_lstm_layers=1,
+        num_fc_layers=1,
         bidirectional=True,
     )
     x_hat, mean, logvar = model(seq_note_onehot, seq_chord_chroma)
@@ -56,6 +70,7 @@ def test_onehot_model(
 def test_embedded_model(
     seq_notenum: torch.Tensor, seq_chord_chroma: torch.Tensor
 ) -> None:
+
     model = EmbeddedLstmVAE(
         input_dim=64,
         embedding_dim=16,
@@ -65,6 +80,21 @@ def test_embedded_model(
         num_lstm_layers=1,
         num_fc_layers=1,
         bidirectional=False,
+    )
+    x_hat, mean, logvar = model(seq_notenum, seq_chord_chroma)
+
+    loss = model.criterion(seq_notenum, x_hat, mean, logvar)
+    loss.backward()
+
+    model = EmbeddedLstmVAE(
+        input_dim=64,
+        embedding_dim=16,
+        hidden_dim=16,
+        latent_dim=16,
+        condition_dim=12,
+        num_lstm_layers=1,
+        num_fc_layers=1,
+        bidirectional=True,
     )
     x_hat, mean, logvar = model(seq_notenum, seq_chord_chroma)
 

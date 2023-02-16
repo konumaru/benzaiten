@@ -85,11 +85,11 @@ class OnehotLstmVAEConfig:
 @dataclass
 class EmbeddedLstmVAEConfig:
     input_dim: int = 49
-    embedding_dim: int = 64
-    hidden_dim: int = 1024
-    latent_dim: int = 128
+    embedding_dim: int = 128
+    hidden_dim: int = 512
+    latent_dim: int = 64
     condition_dim: int = 12 + 1
-    num_lstm_layers: int = 2
+    num_lstm_layers: int = 3
     num_fc_layers: int = 2
     bidirectional: bool = False
 

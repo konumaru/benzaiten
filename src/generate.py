@@ -48,6 +48,7 @@ def generate_pianoroll(
     melody_length = inputs.shape[1]  # 128
     batch_size = int(melody_length / 2)  # 64
     pianoroll = np.zeros((melody_length, 49))
+
     for i in range(0, melody_length, batch_size):
         latent_rand = torch.rand(1, model.latent_dim)
         y_new = model.decode(latent_rand, inputs[:, i : i + batch_size])
@@ -118,17 +119,41 @@ def make_wav(save_filepath: str, midi_filepath: str) -> None:
     fluid_synth.midi_to_audio(midi_filepath, save_filepath)
 
 
-@hydra.main(version_base=None, config_name="config")
-def main(cfg: Config) -> None:
+def get_model(cfg: Config) -> Union[OnehotLstmVAE, EmbeddedLstmVAE]:
+    assert cfg.exp.name in ("working", "onehot", "embedded")
     train_output_dir = Path(
         os.path.join(
             cfg.benzaiten.root_dir, cfg.benzaiten.train_dir, cfg.exp.name
         )
     )
-    model = OnehotLstmVAE.load_from_checkpoint(
-        checkpoint_path=str(train_output_dir / cfg.benzaiten.model_filename),
-        hparams_file=str(train_output_dir / "config.yaml"),
-    )
+
+    if cfg.exp.name == "onehot":
+        return OnehotLstmVAE.load_from_checkpoint(
+            checkpoint_path=str(
+                train_output_dir / cfg.benzaiten.model_filename
+            ),
+            hparams_file=str(train_output_dir / "config.yaml"),
+        )
+    elif cfg.exp.name == "embedded":
+        return EmbeddedLstmVAE.load_from_checkpoint(
+            checkpoint_path=str(
+                train_output_dir / cfg.benzaiten.model_filename
+            ),
+            hparams_file=str(train_output_dir / "config.yaml"),
+        )
+    else:
+        return OnehotLstmVAE.load_from_checkpoint(
+            checkpoint_path=str(
+                train_output_dir / cfg.benzaiten.model_filename
+            ),
+            hparams_file=str(train_output_dir / "config.yaml"),
+        )
+
+
+@hydra.main(version_base=None, config_name="config")
+def main(cfg: Config) -> None:
+
+    model = get_model(cfg)
 
     smpl_name = cfg.sample_name
     competition_dir = Path(

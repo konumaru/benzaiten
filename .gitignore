@@ -141,3 +141,5 @@ data/train/*/checkpoints/
 data/train/*/logs/
 !data/train/*/config_hydra.yaml
 !data/train/*/config.yaml
+
+!data/image/

@@ -2,8 +2,8 @@
 .PHONY: generate
 generate:
 	python src/generate.py \
-		demo.name=sample1 \
-		exp.name=onehot
+		demo.name=sample1,sample2,sample3 \
+		exp.name=onehot,embedded
 
 .PHONY: tests
 tests:
