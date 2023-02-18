@@ -90,7 +90,7 @@ def main(cfg: Config) -> None:
     OmegaConf.save(cfg, output_dir / "config_hydra.yaml")
 
     model = model.load_from_checkpoint(checkpoint_callback.best_model_path)
-    torch.save(model.cpu().state_dict(), output_dir / "best_model.pth")
+    torch.save(model.cpu().state_dict(), str(output_dir / "best_model.pth"))
 
 
 if __name__ == "__main__":

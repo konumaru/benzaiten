@@ -49,7 +49,7 @@ embedded_model:
   bidirectional: false
 train:
   batch_size: 32
-  num_epoch: 3
+  num_epoch: 5
   grad_clip_val: 1.0
   learning_rate: 0.0003
 sample_name: sample1
