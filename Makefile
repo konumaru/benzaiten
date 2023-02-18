@@ -10,10 +10,8 @@ tests:
 	isort src/
 	pytest -s --cov=./src
 
-# .PHONY: completion
-# completion:
-# 	echo eval "$(python src/config.py -sc install=bash)" >> ~/.bashrc
 
-.PHONY: stop-container
-stop-container:
-	cd docker && docker compose -f docker-compose.cpu.yml stop
+.PHONY: dl-soundfont
+dl-soundfont:
+	mkdir -p ~/data/soundfont
+    curl https://github.com/musescore/MuseScore/raw/master/share/sound/FluidR3Mono_GM.sf3 -o ./data/soundfont/FluidR3Mono_GM.sf3
