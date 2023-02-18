@@ -1,9 +1,8 @@
 
 .PHONY: generate
 generate:
-	python src/generate.py \
-		demo.name=sample1,sample2,sample3 \
-		exp.name=onehot,embedded
+	cd docker && docker compose -f docker-compose.cpu.yml up -d
+	cd docker && docker compose exec benzaiten-cpu python src/generate.py exp.name=onehot sample_name=sample1
 
 .PHONY: tests
 tests:
@@ -14,4 +13,7 @@ tests:
 # .PHONY: completion
 # completion:
 # 	echo eval "$(python src/config.py -sc install=bash)" >> ~/.bashrc
-# 	echo [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && . /usr/share/bash-completion/bash_completion >> ~/.bashrc
+
+.PHONY: stop-container
+stop-container:
+	cd docker && docker compose -f docker-compose.cpu.yml stop

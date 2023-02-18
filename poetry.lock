@@ -808,21 +808,24 @@ test = ["ipykernel", "pre-commit", "pytest", "pytest-cov", "pytest-timeout"]
 
 [[package]]
 name = "jupyter-events"
-version = "0.5.0"
+version = "0.6.3"
 description = "Jupyter Event System library"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
-jsonschema = {version = ">=4.3.0", extras = ["format-nongpl"]}
-python-json-logger = "*"
-pyyaml = "*"
-traitlets = "*"
+jsonschema = {version = ">=3.2.0", extras = ["format-nongpl"]}
+python-json-logger = ">=2.0.4"
+pyyaml = ">=5.3"
+rfc3339-validator = "*"
+rfc3986-validator = ">=0.1.1"
+traitlets = ">=5.3"
 
 [package.extras]
 cli = ["click", "rich"]
-test = ["click", "coverage", "pre-commit", "pytest (>=6.1.0)", "pytest-asyncio (>=0.19.0)", "pytest-console-scripts", "pytest-cov", "rich"]
+docs = ["jupyterlite-sphinx", "myst-parser", "pydata-sphinx-theme", "sphinxcontrib-spelling"]
+test = ["click", "coverage", "pre-commit", "pytest (>=7.0)", "pytest-asyncio (>=0.19.0)", "pytest-console-scripts", "pytest-cov", "rich"]
 
 [[package]]
 name = "jupyter-server"
@@ -858,14 +861,14 @@ test = ["ipykernel", "pre-commit", "pytest (>=7.0)", "pytest-console-scripts", "
 
 [[package]]
 name = "jupyter-server-fileid"
-version = "0.6.0"
+version = "0.7.0"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
-jupyter-events = ">=0.5.0,<0.6.0"
+jupyter-events = ">=0.5.0"
 jupyter-server = ">=1.15,<3"
 
 [package.extras]
@@ -2829,16 +2832,16 @@ jupyter-core = [
     {file = "jupyter_core-5.2.0.tar.gz", hash = "sha256:1407cdb4c79ee467696c04b76633fc1884015fa109323365a6372c8e890cc83f"},
 ]
 jupyter-events = [
-    {file = "jupyter_events-0.5.0-py3-none-any.whl", hash = "sha256:6f7b67bf42b8a370c992187194ed02847dfa02307a7aebe9913e2d3979b9b6b8"},
-    {file = "jupyter_events-0.5.0.tar.gz", hash = "sha256:e27ffdd6138699d47d42cb65ae6d79334ff7c0d923694381c991ce56a140f2cd"},
+    {file = "jupyter_events-0.6.3-py3-none-any.whl", hash = "sha256:57a2749f87ba387cd1bfd9b22a0875b889237dbf2edc2121ebb22bde47036c17"},
+    {file = "jupyter_events-0.6.3.tar.gz", hash = "sha256:9a6e9995f75d1b7146b436ea24d696ce3a35bfa8bfe45e0c33c334c79464d0b3"},
 ]
 jupyter-server = [
     {file = "jupyter_server-2.3.0-py3-none-any.whl", hash = "sha256:b15078954120886d580e19d1746e2b62a3dc7bd082cb4716115c25fcd7061b00"},
     {file = "jupyter_server-2.3.0.tar.gz", hash = "sha256:29d6657bfb160b0e39b9030d67f33f918a188f2eba28065314a933b327fef872"},
 ]
 jupyter-server-fileid = [
-    {file = "jupyter_server_fileid-0.6.0-py3-none-any.whl", hash = "sha256:ac36436611b281cebbb5b9936a6f4850271bb411e13a287780a022dd0d2c3bf7"},
-    {file = "jupyter_server_fileid-0.6.0.tar.gz", hash = "sha256:a12209bdef4f2f9d57051b7556a089299fb9f26b501f643946854220c955be14"},
+    {file = "jupyter_server_fileid-0.7.0-py3-none-any.whl", hash = "sha256:0b580a9d75cc7a7132132d6bb3faa4645e34527bff8760861e9e6de51bec7397"},
+    {file = "jupyter_server_fileid-0.7.0.tar.gz", hash = "sha256:340e86b45875d51a60e0e93d8d3bcb609c2bc8d315ec07c003f36d561f637c0e"},
 ]
 jupyter-server-terminals = [
     {file = "jupyter_server_terminals-0.4.4-py3-none-any.whl", hash = "sha256:75779164661cec02a8758a5311e18bb8eb70c4e86c6b699403100f1585a12a36"},

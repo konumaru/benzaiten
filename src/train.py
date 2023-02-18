@@ -69,8 +69,8 @@ def main(cfg: Config) -> None:
     )
     csv_logger = CSVLogger(str(output_dir / "logs"))
     checkpoint_callback = ModelCheckpoint(
-        dirpath=str(output_dir / "checkpoints"),
-        filename="{epoch}-{train_loss:.4f}",
+        dirpath=output_dir,
+        filename="best_model",
         monitor="train_loss",
         save_top_k=1,
     )
@@ -87,10 +87,10 @@ def main(cfg: Config) -> None:
 
     OmegaConf.save(dict(model.hparams), output_dir / "config.yaml")
     OmegaConf.save(cfg, output_dir / "config_hydra.yaml")
-    shutil.copyfile(
-        checkpoint_callback.best_model_path,
-        str(output_dir / cfg.benzaiten.model_filename),
-    )
+    # shutil.copyfile(
+    #     checkpoint_callback.best_model_path,
+    #     str(output_dir / cfg.benzaiten.model_filename),
+    # )
 
 
 if __name__ == "__main__":

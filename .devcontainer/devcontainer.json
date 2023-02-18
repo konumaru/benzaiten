@@ -3,7 +3,10 @@
 // If you want to run as a non-root user in the container, see .devcontainer/docker-compose.yml.
 {
   "name": "dev-container",
-  "dockerComposeFile": ["../docker/docker-compose.yml"],
+  "dockerComposeFile": [
+    "../docker/docker-compose.yml",
+    "../docker/docker-compose.cpu.yml"
+  ],
   "service": "benzaiten",
   "workspaceFolder": "/workspace",
   "extensions": [
@@ -21,7 +24,11 @@
     "usernamehw.errorlens"
   ],
   "settings": {
-    "eslint.workingDirectories": [{ "mode": "auto" }],
+    "eslint.workingDirectories": [
+      {
+        "mode": "auto"
+      }
+    ],
     // Editor
     "editor.fontSize": 12,
     "editor.formatOnSave": true,
@@ -52,7 +59,9 @@
     "python.linting.mypyPath": "/usr/local/bin/mypy",
     "python.formatting.provider": "black",
     "python.formatting.blackPath": "/usr/local/bin/black",
-    "isort.path": ["/usr/local/bin/isort"],
+    "isort.path": [
+      "/usr/local/bin/isort"
+    ],
     "python.testing.cwd": "${workspaceFolder}",
     "autoDocstring.docstringFormat": "google",
     // Makefile
