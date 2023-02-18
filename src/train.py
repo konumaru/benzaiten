@@ -6,6 +6,7 @@ from typing import List, Tuple, Union
 import hydra
 import numpy as np
 import pytorch_lightning as pl
+import torch
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 from pytorch_lightning.loggers import CSVLogger
@@ -69,8 +70,8 @@ def main(cfg: Config) -> None:
     )
     csv_logger = CSVLogger(str(output_dir / "logs"))
     checkpoint_callback = ModelCheckpoint(
-        dirpath=output_dir,
-        filename="best_model",
+        dirpath=str(output_dir / "checkpoints"),
+        filename="{epoch}-{train_loss:.4f}",
         monitor="train_loss",
         save_top_k=1,
     )
@@ -78,7 +79,7 @@ def main(cfg: Config) -> None:
     trainer = pl.Trainer(
         logger=csv_logger,
         max_epochs=cfg.train.num_epoch,
-        accelerator="gpu",
+        accelerator="gpu" if torch.cuda.is_available() else "cpu",
         callbacks=callbacks,
         gradient_clip_val=cfg.train.grad_clip_val,
         log_every_n_steps=10,
@@ -87,10 +88,9 @@ def main(cfg: Config) -> None:
 
     OmegaConf.save(dict(model.hparams), output_dir / "config.yaml")
     OmegaConf.save(cfg, output_dir / "config_hydra.yaml")
-    # shutil.copyfile(
-    #     checkpoint_callback.best_model_path,
-    #     str(output_dir / cfg.benzaiten.model_filename),
-    # )
+
+    model = model.load_from_checkpoint(checkpoint_callback.best_model_path)
+    torch.save(model.cpu().state_dict(), output_dir / "best_model.pth")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ import midi2audio
 import mido
 import numpy as np
 import torch
+import yaml
 
 from config import Config
 from model import EmbeddedLstmVAE, OnehotLstmVAE
@@ -126,31 +127,26 @@ def get_model(cfg: Config) -> Union[OnehotLstmVAE, EmbeddedLstmVAE]:
             cfg.benzaiten.root_dir, cfg.benzaiten.train_dir, cfg.exp.name
         )
     )
+    with open(str(train_output_dir / "config.yaml"), "r") as yml:
+        model_args = yaml.safe_load(yml)
 
     if cfg.exp.name == "onehot":
-        return OnehotLstmVAE.load_from_checkpoint(
-            checkpoint_path=str(
-                train_output_dir / cfg.benzaiten.model_filename
-            ),
-            hparams_file=str(train_output_dir / "config.yaml"),
-            map_location=torch.device("cpu"),
+        model = OnehotLstmVAE(**model_args)
+        model.load_state_dict(
+            torch.load(str(train_output_dir / "best_model.pth"))
         )
     elif cfg.exp.name == "embedded":
-        return EmbeddedLstmVAE.load_from_checkpoint(
-            checkpoint_path=str(
-                train_output_dir / cfg.benzaiten.model_filename
-            ),
-            hparams_file=str(train_output_dir / "config.yaml"),
-            map_location=torch.device("cpu"),
+        model = EmbeddedLstmVAE(**model_args)
+        model.load_state_dict(
+            torch.load(str(train_output_dir / "best_model.pth"))
         )
     else:
-        return OnehotLstmVAE.load_from_checkpoint(
-            checkpoint_path=str(
-                train_output_dir / cfg.benzaiten.model_filename
-            ),
-            hparams_file=str(train_output_dir / "config.yaml"),
-            map_location=torch.device("cpu"),
+        model = OnehotLstmVAE(**model_args)
+        model.load_state_dict(
+            torch.load(str(train_output_dir / "best_model.pth"))
         )
+
+    return model
 
 
 @hydra.main(version_base=None, config_name="config")
