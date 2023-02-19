@@ -1,4 +1,5 @@
 import os
+import platform
 from pathlib import Path
 from typing import Union
 
@@ -114,10 +115,11 @@ def make_midi(
 
 
 def make_wav(save_filepath: str, midi_filepath: str) -> None:
-    fluid_synth = midi2audio.FluidSynth(
-        # sound_font="/usr/share/sounds/sf2/FluidR3_GM.sf2"
-        sound_font="./data/soundfont/FluidR3Mono_GM.sf3"
-    )
+    sf_path = "/usr/share/sounds/sf2/FluidR3_GM.sf2"
+    if platform.system() == "Darwin":
+        sf_path = "./data/soundfont/FluidR3Mono_GM.sf3"
+
+    fluid_synth = midi2audio.FluidSynth(sound_font=sf_path)
     fluid_synth.midi_to_audio(midi_filepath, save_filepath)
 
 
