@@ -138,6 +138,9 @@ data/*
 data/competition/*
 !data/competition/sample1/
 
+!data/sample_wav/
+!data/tmp/
+
 !data/train/
 data/train/working/*.ckpt
 data/train/working/*.pth
