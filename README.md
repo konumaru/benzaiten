@@ -10,11 +10,11 @@ Here the chord2melody model is implemented in pytorch.
 
 ### Onehot Model
 
-<audio controls src="data/sample_wav/onehot.mov"></audio>
+<audio src="data/sample_wav/onehot.mov"></audio>
 
 ### Embedding Chord Model
 
-<audio controls src="data/sample_wav/embedded.mov"></audio>
+<audio src="data/sample_wav/embedded.mov"></audio>
 
 ## Model Overview
 
