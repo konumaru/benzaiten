@@ -6,16 +6,6 @@
 
 Here the chord2melody model is implemented in pytorch.
 
-## Generated Melody
-
-### Onehot Model
-
-<audio src="data/sample_wav/onehot.mov"></audio>
-
-### Embedding Chord Model
-
-<audio src="data/sample_wav/embedded.mov"></audio>
-
 ## Model Overview
 
 ### input data
