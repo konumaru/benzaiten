@@ -6,6 +6,12 @@
 
 Here the chord2melody model is implemented in pytorch.
 
+## Generate
+
+```sh
+(venv)$ python src/generate.py exp.name=onehot,embedded sample_name=sample1
+```
+
 ## Model Overview
 
 ### input data
